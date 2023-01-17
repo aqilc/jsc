@@ -1,0 +1,14 @@
+[
+	{
+	  "directory": "d:/projects/c/jsc/",
+	  "file": "main.c",
+	  "output": "main.o",
+	  "arguments": ["clang", "-xc", "main.c", "-I", ".", "-c"]
+	},
+	{
+	  "directory": "d:/projects/c/jsc/",
+	  "file": "vec.c",
+	  "output": "vec.o",
+	  "arguments": ["clang", "-xc", "vec.c", "-I", ".", "-c"]
+	},
+]
