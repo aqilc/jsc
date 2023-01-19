@@ -11,4 +11,22 @@
 	  "output": "vec.o",
 	  "arguments": ["clang", "-xc", "vec.c", "-I", ".", "-c"]
 	},
+	{
+	  "directory": "d:/projects/c/jsc/",
+	  "file": "codegen.c",
+	  "output": "codegen.o",
+	  "arguments": ["clang", "-xc", "codegen.c", "-I", ".", "-c"]
+	},
+	{
+	  "directory": "d:/projects/c/jsc/util",
+	  "file": "hash.c",
+	  "output": "hash.o",
+	  "arguments": ["clang", "-xc", "hash.c", "-I", ".", "-c"]
+	},
+	{
+	  "directory": "d:/projects/c/jsc/util",
+	  "file": "hashfunc.c",
+	  "output": "hashfunc.o",
+	  "arguments": ["clang", "-xc", "hashfunc.c", "-I", ".", "-c"]
+	},
 ]
