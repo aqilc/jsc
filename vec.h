@@ -16,9 +16,10 @@ struct vecdata {
 	u8 data[];
 };
 #define _DATA(x) ((struct vecdata*)(x) - 1)
+#define vlen(x) (_DATA(x)->used / sizeof(*(x)))
 
 // The normal push macro, pushes a value onto the obj
-#define push(x, y) (*(typeof(x))_push((void**)&(x), sizeof(*(x))) = (typeof(*x)) (y))
+#define push(x, ...) (*(typeof(x))_push((void**)&(x), sizeof(*(x))) = (typeof(*x)) __VA_ARGS__)
 // expands to something like: *(int*)_push((void*) &data, 4) = (int) 5;
 
 // The variadic push macro, still in the works
@@ -27,7 +28,7 @@ struct vecdata {
 
 #define pop(x) (_pop((x), sizeof(*(x))))
 
-void* new_vec();
+void* vnew();
 void _alloc(struct vecdata** data, u8 size);
 void _remove(void* v, u8 size, u32 pos);
 void* _push(void** v, u8 size);

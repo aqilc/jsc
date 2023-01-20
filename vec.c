@@ -1,8 +1,8 @@
 #include "vec.h"
 
 // Just callocs a vec lol
-void* new_vec() {
-	return (struct vecdata*)calloc(1, sizeof(struct vecdata)) + 1; }
+void* vnew() {
+	return (struct vecdata*)calloc(1, sizeof(struct vecdata) + 1) + 1; }
 
 // Reallocs more size for the array, hopefully without moves o.o
 void _alloc(struct vecdata** data, u8 size) {
@@ -15,10 +15,10 @@ void* _push(void** v, u8 size) {
 	struct vecdata* data = _DATA(*v);
 
 	// If the capacity is exceeded, alloc more
-	if(data->cap < data->used + size)
-		_alloc(&data, (size + data->used) - data->cap), *v = (data + 1);
-
 	data->used += size;
+	if(data->cap < data->used)
+		_alloc(&data, (size + data->used) - data->cap), *v = (data + 1);
+	
 	return data->data + data->used - size;
 }
 
