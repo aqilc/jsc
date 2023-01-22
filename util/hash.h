@@ -15,11 +15,13 @@ typedef struct hashtable {
   unsigned short size;
   unsigned int count;
   unsigned int keyssize;
+  unsigned int fastdeleted;
 } hashtable;
 
 hashtable* ht(unsigned short size);
 hashtable* hti(hashtable* ht, char* key, void* data);
 void* htg(hashtable* h, char* key);
+void* htd(hashtable* h, char* key);
 
 int* new_i(int i);
 unsigned int* new_ui(unsigned int i);

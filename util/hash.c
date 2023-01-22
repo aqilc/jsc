@@ -1,7 +1,7 @@
+#include "hash.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "hash.h"
 
 static void pushs(hashtable* h, char* s);
 
@@ -13,6 +13,7 @@ hashtable* ht(unsigned short size) {
   h->t = calloc(size, sizeof(hashitem*));
   h->keys = malloc(sizeof(char*) * 4);
   h->keyssize = 4;
+  h->fastdeleted = 0;
   return h;
 }
 
@@ -23,7 +24,7 @@ float* new_f(float f) { float* v = malloc(sizeof(float)); *v = f; return v; }
 char* new_c(char c) { char* s = malloc(2); s[0] = c; s[1] = '\0'; return s; }
 char* new_s(char* s) { size_t len = strlen(s); char *t = malloc(len + 1); return strcpy(t, s); }
 
-// Insert into table ht
+// Insert a key and value (use malloc(new_s) on strings, and cast ints to ptrs)
 hashtable* hti(hashtable* ht, char* key, void* data) {
 
   // Clones the key just to make sure.
@@ -75,13 +76,20 @@ void* htg(hashtable* h, char* key) {
   return NULL;
 }
 
-// Deletes a key
+// Deletes a key (VERY EXPENSIVE SO USE AT YOUR OWN RISK) (don't forget to free your return ptr if you need to)
 void* htd(hashtable* h, char* key) {
   
   // Same setup as `htg()`
   unsigned int place = hash(key, strlen(key)) % h->size;
   hashitem* cur = h->t[place];
   if(!cur) return NULL;
+
+  // Deletes the key in the keystore
+  char* keyptr = NULL; unsigned int numkeys = 0;
+  for(int i = 0; i < h->count; i++)
+    if(!strcmp(h->keys[i], key)) { numkeys = h->count - i - 1; keyptr = h->keys[i]; break; }
+  if(keyptr == NULL) return NULL;
+  if(numkeys) memmove(keyptr, keyptr + 1, numkeys);
 
   // Tries to find the parent of the key we're looking for
   if(strcmp(key, cur->key)) {
@@ -103,7 +111,8 @@ void* htd(hashtable* h, char* key) {
     return val;
   }
 
-  // If we did not find anything return NULL. This is also the signal that it failed
+  // If we did not find anything return NULL. This is also the signal that something is very
+  // messed up in the map tho, if there's a keystore entry but no actual entry lol
   return NULL;
   
   // If we found a suitable parent
@@ -115,18 +124,10 @@ found:
   return val;
 }
 
-// Frees the hastable and every key, returns the value ptrs if you want to free them yourself
-void** htfree(hashtable* h) {
-  void** vals = malloc(sizeof(void*) * h->count);
-
-  // Deletes every single key
-  unsigned int current = 0;
-  while(h->count)
-    htd(h, h->keys[current++]);
-
-  // Frees all malloced things
-  free(h->keys); free(h->t); free(h);
-  return vals;
+// For deleting everything in a table really fast.
+// **WARNING Table is unusable after you call this.**
+void* htdfast(hashtable* h) {
+  
 }
 
 // Getter functions that return types so it's easier to deal with them
