@@ -126,8 +126,35 @@ found:
 
 // For deleting everything in a table really fast.
 // **WARNING Table is unusable after you call this.**
+// IS ALSO UNSAFE FOR BAD TABLES BC IT SKIPS A COUPLE CHECKS
 void* htdfast(hashtable* h) {
-  
+  char* key = h->keys[h->fastdeleted ++];
+  unsigned int place = hash(key, strlen(key)) % h->size;
+  hashitem* cur = h->t[place];
+
+  // copied from htd()
+  if(strcmp(key, cur->key)) {
+    while(cur->next != NULL)
+      if(strcmp(key, cur->next->key))
+        cur = cur->next;
+      else goto found;
+  } else {
+    void* val = cur->value;
+    free(cur->key); free(cur);
+    return val;
+  }
+  return NULL; // if this is reached there is something really really messed up
+found:;
+  void* val = cur->next->value;
+  free(cur->next->key); free(cur->next);
+  cur->next = NULL;
+  return val;
+}
+
+// Frees EMPTY table
+void htfree(hashtable* h) {
+  free(h->keys); free(h->t);
+  free(h);
 }
 
 // Getter functions that return types so it's easier to deal with them
