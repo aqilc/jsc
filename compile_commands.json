@@ -7,15 +7,21 @@
 	},
 	{
 	  "directory": "d:/projects/c/jsc/",
-	  "file": "vec.c",
-	  "output": "vec.o",
-	  "arguments": ["clang", "-xc", "vec.c", "-I", ".", "-c"]
-	},
-	{
-	  "directory": "d:/projects/c/jsc/",
 	  "file": "codegen.c",
 	  "output": "codegen.o",
 	  "arguments": ["clang", "-xc", "codegen.c", "-I", ".", "-c"]
+	},
+	{
+	  "directory": "d:/projects/c/jsc/",
+	  "file": "tok.c",
+	  "output": "tok.o",
+	  "arguments": ["clang", "-xc", "tok.c", "-I", ".", "-c"]
+	},
+	{
+	  "directory": "d:/projects/c/jsc/util",
+	  "file": "vec.c",
+	  "output": "vec.o",
+	  "arguments": ["clang", "-xc", "vec.c", "-I", ".", "-c"]
 	},
 	{
 	  "directory": "d:/projects/c/jsc/util",
