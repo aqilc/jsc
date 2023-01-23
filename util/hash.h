@@ -1,4 +1,5 @@
-
+#ifndef HASH_H
+#define HASH_H
 #include "hashfunc.h"
 
 typedef struct hashitem {
@@ -43,3 +44,5 @@ float htgf(hashtable* h, char* key);
 void* htdfast(hashtable* h);
 // Frees EMPTY table
 void htfree(hashtable* h);
+#endif
+

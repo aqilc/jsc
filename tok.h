@@ -1,21 +1,25 @@
 #include "util/vec.h"
+#include "util/hash.h"
 
 enum TokenType {
 	ERROR,
 	NUM,
 	CHAR, STRINGOPEN,
 	OP, // 0 = addition, 1 = sub, 2 = mul, 3 = div, 4 = ++, 5 = --, 6 = >, 7 = <, 8 = ==
-	SYMBOL,
-	DECLARATION,
+	SYMBOL, // val = string
+	DECLARATION, // 0 = var, 1 = fun, 2 = struct
 	FN, RETURN,
-	IF, ELSE, ELSEIF
+	IF, ELSE, ELSEIF,
+	EOS, // END OF STATEMENT (0 = newline, 1 = semicolon)
 };
 
-// DATA ORIENTED PROGRAMMING POG
 struct Token {
 	enum TokenType type;
 	char* loc;
 	u32 len;
+
+	hashtable* vars;
+	
 	
 	union {
 		u64 i;

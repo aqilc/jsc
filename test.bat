@@ -1,8 +1,10 @@
 
 @echo off
 
-CALL :assert "0" , "0"
-CALL :assert "42" , "42"
+rem CALL :assert "0" , "0"
+rem CALL :assert "42" , "42"
+
+for /f %%f in ('dir /b "./test/"') do CALL :assert %%f
 echo "OK"
 
 EXIT /B %ERRORLEVEL%
