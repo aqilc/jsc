@@ -1,9 +1,19 @@
 #include <ctype.h>
 #include <stdlib.h>
+#include "errors.h"
 #include "tok.h"
 
-struct Token* tokenize(char* str) {
+
+char* expect() {
+	
+}
+
+struct Tokens* tokenize(char* str) {
+	char* start = str;
 	struct Token* t = vnew();
+	hashtable* vars;
+	hashtable* funcs;
+	hashtable* structs;
 
 	while (*str) {
 		if(isspace(*str)) goto end;
@@ -33,14 +43,17 @@ struct Token* tokenize(char* str) {
 			
 		}
 
-		// Pushes an error token, increasing length as there are more of them
-		if(t[vlen(t) - 1].type != ERROR)
-			push(t, { .loc = str, .type = ERROR, .len = 1 });
-		else t[vlen(t) - 1].len ++;
+		error_at(start, (u32) (str - start), "Unknown character");
+		abort();
 
 		end:
 		str++;
 	}
-	
-	return t;
+
+	struct Tokens* toks = malloc(sizeof(struct Tokens));
+	toks->toks = t;
+	toks->vars = vars;
+	toks->funcs = funcs;
+	toks->structs = structs;
+	return toks;
 }

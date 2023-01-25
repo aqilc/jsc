@@ -17,9 +17,6 @@ struct Token {
 	enum TokenType type;
 	char* loc;
 	u32 len;
-
-	hashtable* vars;
-	
 	
 	union {
 		u64 i;
@@ -27,5 +24,13 @@ struct Token {
 	} val;
 };
 
-struct Token* tokenize(char* str);
+struct Tokens {
+	struct Token* toks;
+	
+	hashtable* vars;
+	hashtable* funcs;
+	hashtable* structs;
+};
+
+struct Tokens* tokenize(char* str);
 
