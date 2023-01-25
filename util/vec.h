@@ -23,9 +23,11 @@ struct vecdata {
 // push(data, 5); expands to something like: *(int*)_push((void**) &data, 4) = (int) 5;
 
 // String push aliases so u don't have to &
-#define pushs(x, y) _pushs((void**) &x, y)
-#define pushsf(x, ...) _pushsf((void**) &x, __VA_ARGS__)
+#define pushs(x, y) _pushs((void**) &(x), (y))
+#define pushsf(x, ...) _pushsf((void**) &(x), __VA_ARGS__)
 
+// Push the entirety of a vec onto another
+#define pushv(x, y) memcpy(_push(&(x), _DATA(y)->used), y, _DATA(y)->used)
 
 // push(x, ...) but basically for strings
 // #define pushs(x, y) memcpy((char*)(_push((void**)&(x), strlen(y))), (y), strlen(y))
@@ -42,6 +44,7 @@ struct vecdata {
 #define pop(x) (_pop((x), sizeof(*(x))))
 
 void* vnew();
+void* vcat(void* a, void* b);
 // void _alloc(struct vecdata** data, u8 size);
 void _remove(void* v, u8 size, u32 pos);
 void* _push(void** v, u8 size);

@@ -5,7 +5,16 @@
 
 // Just callocs a vec lol
 void* vnew() {
-	return (struct vecdata*)calloc(1, sizeof(struct vecdata) + 1) + 1; }
+	return (struct vecdata*)calloc(1, sizeof(struct vecdata)) + 1; }
+
+// Combines two vectors into a new vector
+void* vcat(void* a, void* b) {
+	void* v = vnew();
+	_push(&v, vlen(b) + vlen(a));
+	memcpy(v, a, _DATA(a)->used);
+	memcpy(v, b, _DATA(b)->used);
+	return v;
+}
 
 // Reallocs more size for the array, hopefully without moves o.o
 void _alloc(struct vecdata** data, u8 size) {
@@ -13,7 +22,7 @@ void _alloc(struct vecdata** data, u8 size) {
 	(*data)->cap += size;
 }
 
-// Pushes more data onto the array
+// Pushes more data onto the array, CAN CHANGE THE PTR U PASS INTO IT
 void* _push(void** v, u8 size) {
 	struct vecdata* data = _DATA(*v);
 
@@ -38,6 +47,7 @@ void _pushsf(void** v, char* fmt, ...) {
 	u32 len = vsnprintf(NULL, 0, fmt, args);
 	vsnprintf(_push((void**) v, len), len, fmt, args);
 }
+
 
 void* _pop(void* v, u8 size) {
 	_DATA(v)->used -= size; return _DATA(v)->data + _DATA(v)->used; }
