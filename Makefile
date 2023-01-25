@@ -25,4 +25,8 @@ $(BUILDDIR)/%.o: %.c
 $(BUILDDIR)/%.o: util/%.c
 	gcc -O2 -c $^ -o $@
 
+clean:
+	rmdir /s /q $(BUILDDIR)
+	del main.exe
+
 .PHONY: all
