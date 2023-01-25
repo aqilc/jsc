@@ -51,7 +51,7 @@ int main(int argn, char** args) {
 	fputs(str, ez);
 	puts(str);
 	exec(c(c("nasm -f win32 -o ", c(filename, ".obj ")), asmfile));
-	exec(c(c(c(c("link ", filename), ".obj /subsystem:console /entry:main /out:"), filename), ".exe"));
+	exec(c(c(c(c("link ", filename), ".obj msvcrt.lib /subsystem:console /out:"), filename), ".exe"));
 	// system("");
 }
 

@@ -94,6 +94,8 @@ func("hello ")
 
 - https://dart.dev/samples
 - https://github.com/vlang/v/blob/master/examples/mini_calculator.v
+- Windows Calling Conventions:
+	- https://learn.microsoft.com/en-us/cpp/build/x64-calling-convention?view=msvc-170
 - COOL OPTIMIZATIONS POG: https://www.youtube.com/watch?v=VMpSYJ_7aYM
 - Malloc in NASM on windows:
 	- https://github.com/miguelperes/custom-malloc
