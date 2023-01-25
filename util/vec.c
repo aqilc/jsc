@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include "vec.h"
 
 // Just callocs a vec lol
@@ -21,6 +23,20 @@ void* _push(void** v, u8 size) {
 		_alloc(&data, (size + data->used) - data->cap), *v = (data + 1);
 	
 	return data->data + data->used - size;
+}
+
+// Allocates memory for a string and then pushes
+void _pushs(void** v, char* str) {
+	u32 len = strlen(str);
+	memcpy(_push(v, len), str, len);
+}
+
+// Gets length of formatted string to allocate from vector first, and then basically writes to the ptr returned by push
+void _pushsf(void** v, char* fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	u32 len = vsnprintf(NULL, 0, fmt, args);
+	vsnprintf(_push((void**) v, len), len, fmt, args);
 }
 
 void* _pop(void* v, u8 size) {

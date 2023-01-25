@@ -22,8 +22,13 @@ struct vecdata {
 #define push(x, ...) (*(typeof(x))_push((void**)&(x), sizeof(*(x))) = (typeof(*x)) __VA_ARGS__)
 // push(data, 5); expands to something like: *(int*)_push((void**) &data, 4) = (int) 5;
 
+// String push aliases so u don't have to &
+#define pushs(x, y) _pushs((void**) &x, y)
+#define pushsf(x, ...) _pushsf((void**) &x, __VA_ARGS__)
+
+
 // push(x, ...) but basically for strings
-#define pushs(x, y) memcpy((char*)(_push((void**)&(x), strlen(y))), (y), strlen(y))
+// #define pushs(x, y) memcpy((char*)(_push((void**)&(x), strlen(y))), (y), strlen(y))
 // pushs(data, "hello"); expands to something like: memcpy((char*)(_push((void**) &data, strlen("hello"))), "hello", strlen("hello"));
 
 // The generic push macro, does not work :sob: pls find a way to make it work
@@ -40,6 +45,8 @@ void* vnew();
 // void _alloc(struct vecdata** data, u8 size);
 void _remove(void* v, u8 size, u32 pos);
 void* _push(void** v, u8 size);
+void _pushs(void** v, char* str);
+void _pushsf(void** v, char* fmt, ...);
 void* _pop(void* v, u8 size);
 
 #endif
