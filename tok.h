@@ -5,8 +5,8 @@ enum TokenType {
 	ERROR,
 	NUM,
 	CHAR, STRINGOPEN,
-	OP, // 0 = addition, 1 = sub, 2 = mul, 3 = div, 4 = ++, 5 = --, 6 = >, 7 = <, 8 = ==
-	SYMBOL, // val = string
+	OP, // 0: +, 1: -, 2: *, 3: /, 4: =, 5: ++, 6: --, 7: >, 8: <, 9: ==, 10: >=, 11: <=, 12: +=, 13 = -=
+	IDENT, // val = string
 	DECLARATION, // 0 = var, 1 = fun, 2 = struct
 	FN, RETURN,
 	IF, ELSE, ELSEIF,
@@ -15,11 +15,17 @@ enum TokenType {
 
 struct Token {
 	enum TokenType type;
-	char* loc;
+	u32 loc;
 	u32 len;
 	
 	union {
 		u64 i;
+		enum {
+			ADD, SUB, MUL, DIV, SET,
+			ADDSET, SUBSET,
+			INCR, DECR,
+			GREATER, LESS, EQ, GREATEQ, LESSEQ,
+		} op;
 		char* str;
 	} val;
 };
@@ -33,4 +39,4 @@ struct Tokens {
 };
 
 struct Tokens* tokenize(char* str);
-
+char* skip(char* s);
