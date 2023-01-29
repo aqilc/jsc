@@ -5,10 +5,15 @@
 #include <stdint.h>
 #include <string.h>
 
-typedef uint8_t u8;
+typedef uint8_t  u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
+
+typedef int8_t  i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
 
 struct vecdata {
 	u32 used;
@@ -29,6 +34,9 @@ struct vecdata {
 // Push the entirety of a vec onto another
 #define pushv(x, y) memcpy(_push(&(x), _DATA(y)->used), y, _DATA(y)->used)
 
+// Add values to the beginning of the vec
+#define unshift(x, ...) (*(typeof(x))_unshift((void**)&(x), sizeof(*(x))) = (typeof(*x)) __VA_ARGS__)
+
 // push(x, ...) but basically for strings
 // #define pushs(x, y) memcpy((char*)(_push((void**)&(x), strlen(y))), (y), strlen(y))
 // pushs(data, "hello"); expands to something like: memcpy((char*)(_push((void**) &data, strlen("hello"))), "hello", strlen("hello"));
@@ -46,10 +54,11 @@ struct vecdata {
 void* vnew();
 void* vcat(void* a, void* b);
 // void _alloc(struct vecdata** data, u8 size);
-void _remove(void* v, u8 size, u32 pos);
-void* _push(void** v, u8 size);
+void _remove(void* v, u16 size, u32 pos);
+void* _push(void** v, u16 size);
 void _pushs(void** v, char* str);
 void _pushsf(void** v, char* fmt, ...);
-void* _pop(void* v, u8 size);
+void* _unshift(void** v, u16 size);
+void* _pop(void* v, u16 size);
 
 #endif

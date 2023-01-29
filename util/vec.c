@@ -17,20 +17,19 @@ void* vcat(void* a, void* b) {
 }
 
 // Reallocs more size for the array, hopefully without moves o.o
-void _alloc(struct vecdata** data, u8 size) {
-	*data = realloc(*data, sizeof(struct vecdata) + (*data)->cap + size);
-	(*data)->cap += size;
+void* _alloc(struct vecdata* data, u16 size) {
+	data->used += size;
+	if(data->cap < data->used) {
+		data->cap += data->used - data->cap;
+		return (struct vecdata*)realloc(data, sizeof(struct vecdata) + data->cap) + 1;
+	}
+	return data + 1;
 }
 
 // Pushes more data onto the array, CAN CHANGE THE PTR U PASS INTO IT
-void* _push(void** v, u8 size) {
+void* _push(void** v, u16 size) {
 	struct vecdata* data = _DATA(*v);
-
-	// If the capacity is exceeded, alloc more
-	data->used += size;
-	if(data->cap < data->used)
-		_alloc(&data, (size + data->used) - data->cap), *v = (data + 1);
-	
+	*v = _alloc(data, size);
 	return data->data + data->used - size;
 }
 
@@ -48,12 +47,18 @@ void _pushsf(void** v, char* fmt, ...) {
 	vsnprintf(_push((void**) v, len), len, fmt, args);
 }
 
+// Adds an element at the start of the vector, ALSO CHANGES PTR
+void* _unshift(void** v, u16 size) {
+	memmove((*v = _alloc(_DATA(*v), size)) + size, *v, vlen(*v));
+	return *v;
+}
 
-void* _pop(void* v, u8 size) {
+
+void* _pop(void* v, u16 size) {
 	_DATA(v)->used -= size; return _DATA(v)->data + _DATA(v)->used; }
 
 // deletes data from the middle of the array
-void _remove(void* v, u8 size, u32 pos) {
+void _remove(void* v, u16 size, u32 pos) {
 	memmove(_DATA(v) + pos, _DATA(v) + pos + size, _DATA(v)->used - pos - size);
 	_DATA(v)->used -= size;
 }
