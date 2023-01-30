@@ -24,7 +24,7 @@ NOTES:
 
 
 
-char* codegen(struct Token* t) {
+char* codegen(struct Tokens* t) {
 	char* ret = vnew();
 
 	pushsf(ret,
