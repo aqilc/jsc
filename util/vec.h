@@ -53,6 +53,7 @@ struct vecdata {
 
 void* vnew();
 void* vcat(void* a, void* b);
+void vfree(void* v);
 // void _alloc(struct vecdata** data, u8 size);
 void _remove(void* v, u16 size, u32 pos);
 void* _push(void** v, u16 size);

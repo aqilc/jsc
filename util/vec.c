@@ -16,6 +16,8 @@ void* vcat(void* a, void* b) {
 	return v;
 }
 
+void vfree(void* v) { free(_DATA(v)); }
+
 // Reallocs more size for the array, hopefully without moves o.o
 void* _alloc(struct vecdata* data, u16 size) {
 	data->used += size;
