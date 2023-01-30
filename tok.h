@@ -4,7 +4,7 @@
 enum TokenType {
 	// ERROR,
 	NUM,
-	CHAR, STRINGOPEN,
+	STRING,
 	OP, // See enum below
 	PAREN, // for functions
 	IDENT, // val = string
@@ -34,7 +34,7 @@ struct Token {
 			INCR, DECR,
 			GREATER, LESS, EQ, GREATEQ, LESSEQ,
 		} op;
-		char* s;
+		char* s; // For parsed strings
 	} val;
 };
 

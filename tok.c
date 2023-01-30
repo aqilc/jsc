@@ -147,6 +147,17 @@ struct Tokens* tokenize(char* str) {
 	return toks;
 }
 
+// Frees tokenizer output
+void tokfree(struct Tokens* t) {
+	vfree(t->toks);
+	void* item;
+	while((item = htdfast(t->vars))) free(item);
+	while((item = htdfast(t->funcs))) free(item);
+	while((item = htdfast(t->structs))) free(item);
+	htfree(t->vars); htfree(t->funcs); htfree(t->structs);
+	free(t);
+}
+
 static inline vstr symb(char* str, u32 idx) {
 	vstr s = vnew();
 	while(isalnum(str[idx]) || str[idx] == '_') push(s, str[(idx)++]);
@@ -167,3 +178,5 @@ static inline i32 expect(char* s, u32 idx, char* e) {
 
 	return idx;
 }
+
+
