@@ -1,4 +1,5 @@
 .cache
 .obsidian
 bin
-
+*.o
+*.obj
