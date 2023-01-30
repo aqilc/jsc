@@ -7,12 +7,12 @@
 void* vnew() {
 	return (struct vecdata*)calloc(1, sizeof(struct vecdata)) + 1; }
 
-// Combines two vectors into a new vector
+// Combines two vectors into a new vector (USE THIS FOR STRING VECS INSTEAD OF _PUSHS PLS I BEG)
 void* vcat(void* a, void* b) {
 	void* v = vnew();
 	_push(&v, vlen(b) + vlen(a));
 	memcpy(v, a, _DATA(a)->used);
-	memcpy(v, b, _DATA(b)->used);
+	memcpy(v + _DATA(a)->used, b, _DATA(b)->used);
 	return v;
 }
 
