@@ -128,6 +128,7 @@ found:
 // **WARNING Table is unusable after you call this.**
 // IS ALSO UNSAFE FOR BAD TABLES BC IT SKIPS A COUPLE CHECKS
 void* htdfast(hashtable* h) {
+  if(h->fastdeleted >= h->count) return NULL;
   char* key = h->keys[h->fastdeleted ++];
   unsigned int place = hash(key, strlen(key)) % h->size;
   hashitem* cur = h->t[place];
