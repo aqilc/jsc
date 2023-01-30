@@ -122,10 +122,13 @@ func("hello ")
 ```rust
 // hello.jsc
 fn hello({ lol }): print(lol);
-hello({ lol: 30 })
+hello { lol: 30 }
+
+export hello;
 
 // main.jsc
-import hello from "hello.jsc"
+import hello from "hello.jsc" // Works like node, executes all of the code in hello then proceeds to do it here
+
 ```
 
 
