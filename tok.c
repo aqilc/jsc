@@ -4,13 +4,31 @@
 #include "tok.h"
 
 
-char* expect() {
-	
+// To differentiate our many different types of strings we have sometimes
+typedef char* vstr;
+
+static inline void skip(char* s, u32* idx);
+static inline vstr symb(char* str, u32 idx);
+static inline i32 expect(char* s, u32 idx, char* e);
+
+hashtable* keywords = NULL;
+
+void init_keywords() {
+	keywords = ht(242);
+	hti(keywords, "let", new_i(DECL));
+	hti(keywords, "fn", new_i(DECL));
+	hti(keywords, "struct", new_i(DECL));
+	hti(keywords, "if", new_i(IF));
+	hti(keywords, "else", new_i(ELSE));
 }
 
+
+
 struct Tokens* tokenize(char* str) {
-	char* start = str;
 	u32 idx = 0;
+
+	// Initializes the keyword dict
+	if(!keywords) init_keywords();
 	
 	struct Token* t = vnew();
 	hashtable* vars;
@@ -18,7 +36,7 @@ struct Tokens* tokenize(char* str) {
 	hashtable* structs;
 
 	// Makes it easy to push tokens
-	#define pusht(...) push(t, { .loc = idx, .type = __VA_ARGS__ })
+	#define tok(...) push(t, { .loc = idx, .type = __VA_ARGS__ })
 
 	while (str[idx]) {
 		if(isspace(str[idx])) goto end;
@@ -31,7 +49,7 @@ struct Tokens* tokenize(char* str) {
 			if(isdigit(str[1])) {
 				
 				// Create a vector string to keep track of number chars
-				char* numstr = vnew();
+				vstr numstr = vnew();
 				while(isdigit(str[idx]))
 					push(numstr, str[idx]), idx++;
 				len = vlen(numstr);
@@ -40,20 +58,74 @@ struct Tokens* tokenize(char* str) {
 				num = atoi(numstr);
 			} else num = str[idx] - '0';
 
-			pusht(NUM, .val = num, .len = len);
+			tok(NUM, .val = num, .len = len);
 			goto end;
 		}
 
 		// Operators
 		switch(str[idx]) {
-			case '=': pusht(OP, .val = { .op = SET }, .len = 1); goto end;
+			case '=': tok(OP, .val = { .op = SET }, .len = 1); goto end;
 			case '+':
 				if(str[idx + 1] == '=') {
-					pusht(OP, .val = { .op = ADDSET }, .len = 2);
+					tok(OP, .val = { .op = ADDSET }, .len = 2);
 					goto end;
 				}
-				pusht(OP, .val = { .op = ADD }, .len = 1);
+				tok(OP, .val = { .op = ADD }, .len = 1);
 				goto end;
+		}
+
+		if(isalpha(str[idx])) {
+			vstr sym = symb(str, idx);
+			push(sym, 0);
+			enum TokenType* token = htg(keywords, sym);
+			if(token) {
+				switch(*token) {
+					case DECL:
+
+						// TODO: FUNCTIONS PLS FINISH THIS AND DON'T EXPECT THIS TO WORK
+						if(sym[0] == 'f') {
+							tok(DECL, .len = 2, .val = { .decl = FN });
+							skip(str, &idx);
+							
+							if(!isalnum(str[idx])) {
+								error_at(str, idx, "Expected function name after 'fn'.");
+								goto error;
+							}
+							
+							vstr name = symb(str, idx);
+							tok(IDENT, .val = { .s = name });
+
+							i32 paren = expect(str, idx, "(");
+							if(paren < 0) {
+								error_at(str, idx, "Expected '(' after function name in function declaration.");
+								goto error;
+							}
+							
+						} else if(sym[0] == 'l') {
+							
+						}
+					case ELSE: {
+						u32 start = idx;
+						idx += 4;
+						skip(str, &idx);
+
+						// Allocs a string for the `if`
+						vstr maybeif = symb(str, idx);
+						push(maybeif, 0);
+						
+						// Takes care of `else if`s
+						if(vlen(maybeif) && !strcmp(maybeif, "if"))
+							push(t, { .loc = start - 4, .type = ELSEIF, .len = idx - start + 4 + 2 });
+						
+						// Or backtracks if there's no if
+						else push(t, { .loc = start - 4, .type = ELSE, .len = 4 });
+
+						free(sym); free(maybeif);
+					}
+					default:
+						tok(*token, .len = vlen(sym), .val = { .s = sym });
+				}
+			} else tok(IDENT, .len = vlen(sym), .val = { .s = sym });
 		}
 
 	end:
@@ -61,8 +133,9 @@ struct Tokens* tokenize(char* str) {
 		continue;
 		
 	error:
-		error_at(start, idx, "Unknown character");
-		
+		// We need to erase the whole line as if it didn't exist
+		while(t[vlen(t)].type != EOS) pop(t);
+		while(str[idx] && str[idx] != '\n') idx++;
 		continue;
 	}
 
@@ -74,26 +147,23 @@ struct Tokens* tokenize(char* str) {
 	return toks;
 }
 
-// Produces an identifier token
-struct Token ident(char* str, u32 idx) {
-	
-	// Skips to where there should be an identifier
-	idx = skip(str + idx) - str;
-	u32 start = idx;
-
-	// Things we would put in the token
-	char* s = vnew();
-	enum TokenType t = IDENT;
-
-	// If we start with a letter or _, we have probably found an identifier
-	if(isalpha(str[idx]) || str[idx] == '_') push(s, str[idx]);
-	else { error_at(str, idx, "Expected identifier, found '%c'", str[idx]); t = ERROR; }
-
-	// Go as long as there's numbers, letters, and _ and collect the full string
-	while(isalnum(str[idx]) || str[idx] == '_') push(s, str[idx++]);
-
-	// Return the token we made
-	return (struct Token) { .loc = idx, .type = t, .val = { .str = s }, .len = idx - start };
+static inline vstr symb(char* str, u32 idx) {
+	vstr s = vnew();
+	while(isalnum(str[idx]) || str[idx] == '_') push(s, str[(idx)++]);
+	return s;
 }
 
-char* skip(char* s) { while(*s == ' ' || *s == '\n') s++; return s; }
+static inline void skip(char* s, u32* idx) { while(s[*idx] == ' ' || s[*idx] == '\n') (*idx)++; }
+
+static inline i32 expect(char* s, u32 idx, char* e) {
+	while(s[idx] == ' ' || s[idx] == '\n') idx++;
+
+	// Since strlen takes C string, we need to put a 0 at the end of the string we need to compare to cut it off :(
+	u32 len = strlen(e);
+	char tmp = s[len];
+	s[len] = 0;
+	if(strcmp(s, e)) return -1;
+	s[len] = tmp;
+
+	return idx;
+}

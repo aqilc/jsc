@@ -2,13 +2,14 @@
 #include "util/hash.h"
 
 enum TokenType {
-	ERROR,
+	// ERROR,
 	NUM,
 	CHAR, STRINGOPEN,
-	OP, // 0: +, 1: -, 2: *, 3: /, 4: =, 5: ++, 6: --, 7: >, 8: <, 9: ==, 10: >=, 11: <=, 12: +=, 13 = -=
+	OP, // See enum below
+	PAREN, // for functions
 	IDENT, // val = string
-	DECLARATION, // 0 = var, 1 = fun, 2 = struct
-	FN, RETURN,
+	DECL, // See enum below
+	RETURN,
 	IF, ELSE, ELSEIF,
 	EOS, // END OF STATEMENT (0 = newline, 1 = semicolon)
 };
@@ -19,14 +20,21 @@ struct Token {
 	u32 len;
 	
 	union {
-		u64 i;
+		i64 i;
+		u64 u;
+		float f;
+		double d;
+		// long double ld;
+		enum {
+			FN, LET, STRUCT, TRAIT
+		} decl;
 		enum {
 			ADD, SUB, MUL, DIV, SET,
 			ADDSET, SUBSET,
 			INCR, DECR,
 			GREATER, LESS, EQ, GREATEQ, LESSEQ,
 		} op;
-		char* str;
+		char* s;
 	} val;
 };
 
@@ -39,4 +47,3 @@ struct Tokens {
 };
 
 struct Tokens* tokenize(char* str);
-char* skip(char* s);
