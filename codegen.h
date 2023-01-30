@@ -1,4 +1,3 @@
-#include "util/vec.h"
 #include "tok.h"
 
-char* codegen(struct Token* t);
+char* codegen(struct Tokens* t);
