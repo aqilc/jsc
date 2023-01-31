@@ -3,6 +3,8 @@
 #include "errors.h"
 #include "tok.h"
 
+// FOR DEBUG
+#include <stdio.h>
 
 // To differentiate our many different types of strings we have sometimes
 typedef char* vstr;
@@ -31,12 +33,13 @@ struct Tokens* tokenize(char* str) {
 	if(!keywords) init_keywords();
 	
 	struct Token* t = vnew();
-	hashtable* vars;
-	hashtable* funcs;
-	hashtable* structs;
+	hashtable* vars = ht(200);
+	hashtable* funcs = ht(200);
+	hashtable* structs = ht(200);
 
 	// Makes it easy to push tokens
-	#define tok(...) push(t, { .loc = idx, .type = __VA_ARGS__ })
+	#define tok(...) push(t, { .loc = idx, .type = __VA_ARGS__ }), idx += t[vlen(t) - 1].len//,\
+		// printf("Pushed token with length %d at idx %d on line %d\n", t[vlen(t) - 1].len, t[vlen(t) - 1].loc, __LINE__)
 
 	while (str[idx]) {
 		if(isspace(str[idx])) goto end;
@@ -59,19 +62,19 @@ struct Tokens* tokenize(char* str) {
 			} else num = str[idx] - '0';
 
 			tok(NUM, .val = num, .len = len);
-			goto end;
+			continue;
 		}
 
 		// Operators
 		switch(str[idx]) {
-			case '=': tok(OP, .val = { .op = SET }, .len = 1); goto end;
+			case '=': tok(OP, .val = { .op = SET }, .len = 1); continue;
 			case '+':
 				if(str[idx + 1] == '=') {
 					tok(OP, .val = { .op = ADDSET }, .len = 2);
-					goto end;
+					continue;
 				}
 				tok(OP, .val = { .op = ADD }, .len = 1);
-				goto end;
+				continue;
 		}
 
 		if(isalpha(str[idx])) {
@@ -102,8 +105,10 @@ struct Tokens* tokenize(char* str) {
 							}
 							
 						} else if(sym[0] == 'l') {
+							tok(DECL, .len = 3, .val = { .decl = LET });
 							
 						}
+						continue;
 					case ELSE: {
 						u32 start = idx;
 						idx += 4;
@@ -120,10 +125,12 @@ struct Tokens* tokenize(char* str) {
 						// Or backtracks if there's no if
 						else push(t, { .loc = start - 4, .type = ELSE, .len = 4 });
 
-						free(sym); free(maybeif);
+						vfree(sym); vfree(maybeif);
+						continue;
 					}
 					default:
 						tok(*token, .len = vlen(sym), .val = { .s = sym });
+						continue;
 				}
 			} else tok(IDENT, .len = vlen(sym), .val = { .s = sym });
 		}
