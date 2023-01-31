@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #define assert(x) do { if(x) break; printf("\nLINE %d: Test failed.\n", __LINE__); return 1; } while (0)
 #define subtest(x, y) do {\
