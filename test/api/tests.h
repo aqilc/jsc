@@ -8,8 +8,16 @@
 // #include <assert.h>
 
 #define assert(x) do { if(x) break; printf("\nLINE %d: Test failed.\n", __LINE__); return 1; } while (0)
+#define subtest(x, y) do {\
+	subtests_run = true;\
+	printf("Subtest '" x "' running");\
+	if(x) { puts(" ... passed"); break; }\
+	printf("\nLINE %d: Subtest '" x "' failed.\n", __LINE__);\
+	return 1;\
+} while (0)
 
 int tests_run;
+bool subtests_run;
 
 #define TESTINIT
 #define TESTCLEAN
@@ -25,7 +33,9 @@ TESTFUNCRET MACCONCAT(test_, __COUNTER__)TESTFUNCARGS {\
 	TESTINIT
 
 #define TEND() TESTCLEAN\
-	puts(" ... passed");\
+	if(!subtests_run)\
+		puts(" ... passed");\
+	else puts("All subtests passed.");\
 	return 0;\
 }
 
