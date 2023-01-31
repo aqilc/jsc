@@ -4,13 +4,15 @@
  */
 
 #include <stdio.h>
-#include <stdbool.h>
-// #include <assert.h>
 
-#define assert(x) do { if(x) break; printf("\nLINE %d: Test failed.\n", __LINE__); return 1; } while (0)
 
 int tests_run;
 
+// Defines custom assert function so it's easier to control
+#define assert(x) do { if(x) break; printf("\nLINE %d: Test failed.\n", __LINE__); return 1; } while (0)
+
+
+// Macro based testing framework starts here -------------------------------------------------------
 #define TESTINIT
 #define TESTCLEAN
 
@@ -29,6 +31,9 @@ TESTFUNCRET MACCONCAT(test_, __COUNTER__)TESTFUNCARGS {\
 	return 0;\
 }
 
+#define TESTFUNGEN__(N) TESTFUNC##N
+#define TESTFUNGEN_(N) TESTFUNGEN__(N)
+#define TESTFUNGEN() TESTFUNGEN_(__COUNTER__)
 
 #define TDELIM ,
 #define TESTFUNC0
@@ -83,10 +88,6 @@ TESTFUNCRET MACCONCAT(test_, __COUNTER__)TESTFUNCARGS {\
 #define TESTFUNC49 TESTFUNC48 TDELIM test_48
 #define TESTFUNC50 TESTFUNC49 TDELIM test_49
 
-// #define EXPAND(...) __VA_ARGS__
-#define TESTFUNGEN__(N) TESTFUNC##N
-#define TESTFUNGEN_(N) TESTFUNGEN__(N)
-#define TESTFUNGEN() TESTFUNGEN_(__COUNTER__)
 
 
 /*
