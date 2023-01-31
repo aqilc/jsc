@@ -44,5 +44,7 @@ float htgf(hashtable* h, char* key);
 void* htdfast(hashtable* h);
 // Frees EMPTY table
 void htfree(hashtable* h);
+// Resets EMPTY table, reallocs some things
+void htreset(hashtable* h);
 #endif
 

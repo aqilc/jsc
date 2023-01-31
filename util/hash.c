@@ -152,6 +152,15 @@ found:;
   return val;
 }
 
+void htreset(hashtable* h) {
+  h->count = 0;
+  h->t = realloc(h->t, h->size * sizeof(hashitem*));
+  memset(h->t, 0, h->size * sizeof(hashitem*));
+  h->keys = realloc(h->keys, sizeof(char*) * 4);
+  h->keyssize = 4;
+  h->fastdeleted = 0;
+}
+
 // Frees EMPTY table
 void htfree(hashtable* h) {
   free(h->keys); free(h->t);
