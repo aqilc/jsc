@@ -10,16 +10,23 @@ void* vnew() {
 // Combines two vectors into a new vector (USE THIS FOR STRING VECS INSTEAD OF _PUSHS PLS I BEG)
 void* vcat(void* a, void* b) {
 	void* v = vnew();
-	_push(&v, vlen(b) + vlen(a));
+	push_(&v, vlen(b) + vlen(a));
 	memcpy(v, a, _DATA(a)->used);
 	memcpy(v + _DATA(a)->used, b, _DATA(b)->used);
 	return v;
 }
 
+void vclear_(void** v) {
+	struct vecdata* data = _DATA(*v);
+	data = _DATA(*v = (struct vecdata*)realloc(_DATA(*v), sizeof(struct vecdata)) + 1);
+	data->cap = 0;
+	data->used = 0;
+}
+
 void vfree(void* v) { free(_DATA(v)); }
 
 // Reallocs more size for the array, hopefully without moves o.o
-void* _alloc(struct vecdata* data, u16 size) {
+void* alloc_(struct vecdata* data, u16 size) {
 	data->used += size;
 	if(data->cap < data->used) {
 		data->cap += data->used - data->cap;
@@ -29,38 +36,38 @@ void* _alloc(struct vecdata* data, u16 size) {
 }
 
 // Pushes more data onto the array, CAN CHANGE THE PTR U PASS INTO IT
-void* _push(void** v, u16 size) {
+void* push_(void** v, u16 size) {
 	struct vecdata* data = _DATA(*v);
-	data = _DATA(*v = _alloc(data, size));
+	data = _DATA(*v = alloc_(data, size));
 	return data->data + data->used - size;
 }
 
 // Allocates memory for a string and then pushes
-void _pushs(void** v, char* str) {
+void pushs_(void** v, char* str) {
 	u32 len = strlen(str);
-	memcpy(_push(v, len), str, len);
+	memcpy(push_(v, len), str, len);
 }
 
 // Gets length of formatted string to allocate from vector first, and then basically writes to the ptr returned by push
-void _pushsf(void** v, char* fmt, ...) {
+void pushsf_(void** v, char* fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	u32 len = vsnprintf(NULL, 0, fmt, args);
-	vsnprintf(_push((void**) v, len), len, fmt, args);
+	vsnprintf(push_((void**) v, len), len, fmt, args);
 }
 
 // Adds an element at the start of the vector, ALSO CHANGES PTR
-void* _unshift(void** v, u16 size) {
-	memmove((*v = _alloc(_DATA(*v), size)) + size, *v, vlen(*v));
+void* unshift_(void** v, u16 size) {
+	memmove((*v = alloc_(_DATA(*v), size)) + size, *v, vlen(*v));
 	return *v;
 }
 
 
-void* _pop(void* v, u16 size) {
+void* pop_(void* v, u16 size) {
 	_DATA(v)->used -= size; return _DATA(v)->data + _DATA(v)->used; }
 
 // deletes data from the middle of the array
-void _remove(void* v, u16 size, u32 pos) {
+void remove_(void* v, u16 size, u32 pos) {
 	memmove(_DATA(v) + pos, _DATA(v) + pos + size, _DATA(v)->used - pos - size);
 	_DATA(v)->used -= size;
 }
