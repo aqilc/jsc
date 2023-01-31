@@ -6,8 +6,8 @@
 #undef TESTCLEAN
 #define TESTCLEAN tokfree(t);
 
-TEST("Tokenize Single keyword")
-	tokenize("let");
+TEST("Tokenize 'let' declaration")
+	tokenize("let name");
 	assert(t->toks[0].type == DECL);
 	assert(vlen(t->toks) == 1);
 TEND()
