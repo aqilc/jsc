@@ -31,7 +31,7 @@ void* _alloc(struct vecdata* data, u16 size) {
 // Pushes more data onto the array, CAN CHANGE THE PTR U PASS INTO IT
 void* _push(void** v, u16 size) {
 	struct vecdata* data = _DATA(*v);
-	*v = _alloc(data, size);
+	data = _DATA(*v = _alloc(data, size));
 	return data->data + data->used - size;
 }
 
