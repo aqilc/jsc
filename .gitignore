@@ -3,3 +3,4 @@
 bin
 *.o
 *.obj
+test/**/*.exe
