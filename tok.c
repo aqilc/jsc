@@ -12,6 +12,7 @@ typedef char* vstr;
 static inline void skip(char* s, u32* idx);
 static inline vstr symb(char* str, u32 idx);
 static inline i32 expect(char* s, u32 idx, char* e);
+static inline void parse(struct Tokens* toks, char* str);
 
 hashtable* keywords = NULL;
 
@@ -27,15 +28,52 @@ void init_keywords() {
 
 
 struct Tokens* tokenize(char* str) {
-	u32 idx = 0;
 
 	// Initializes the keyword dict
 	if(!keywords) init_keywords();
+
+	struct Tokens* toks = malloc(sizeof(struct Tokens));
+	toks->toks = vnew();
+	toks->vars = ht(200);
+	toks->funcs = ht(200);
+	toks->structs = ht(200);
+
+	parse(toks, str);
 	
-	struct Token* t = vnew();
-	hashtable* vars = ht(200);
-	hashtable* funcs = ht(200);
-	hashtable* structs = ht(200);
+	return toks;
+}
+
+
+// Uses existing tokenizer object to tokenize, saves time, space, money and funccalls
+void retokenize(struct Tokens* toks, char* str) {
+	vclear(toks->toks);
+	
+	void* item;
+	while((item = htdfast(toks->vars))) free(item);
+	while((item = htdfast(toks->funcs))) free(item);
+	while((item = htdfast(toks->structs))) free(item);
+	htreset(toks->vars); htreset(toks->funcs); htreset(toks->structs);
+
+	parse(toks, str);
+}
+
+// Frees tokenizer output
+void tokfree(struct Tokens* t) {
+	vfree(t->toks);
+	void* item;
+	while((item = htdfast(t->vars))) free(item);
+	while((item = htdfast(t->funcs))) free(item);
+	while((item = htdfast(t->structs))) free(item);
+	htfree(t->vars); htfree(t->funcs); htfree(t->structs);
+	free(t);
+}
+
+
+
+
+static inline void parse(struct Tokens* toks, char* str) {
+	u32 idx;
+	struct Token* t = toks->toks;
 
 	// Makes it easy to push tokens
 	#define tok(...) push(t, { .loc = idx, .type = __VA_ARGS__ }), idx += t[vlen(t) - 1].len//,\
@@ -145,25 +183,9 @@ struct Tokens* tokenize(char* str) {
 		while(str[idx] && str[idx] != '\n') idx++;
 		continue;
 	}
-
-	struct Tokens* toks = malloc(sizeof(struct Tokens));
-	toks->toks = t;
-	toks->vars = vars;
-	toks->funcs = funcs;
-	toks->structs = structs;
-	return toks;
 }
 
-// Frees tokenizer output
-void tokfree(struct Tokens* t) {
-	vfree(t->toks);
-	void* item;
-	while((item = htdfast(t->vars))) free(item);
-	while((item = htdfast(t->funcs))) free(item);
-	while((item = htdfast(t->structs))) free(item);
-	htfree(t->vars); htfree(t->funcs); htfree(t->structs);
-	free(t);
-}
+
 
 static inline vstr symb(char* str, u32 idx) {
 	vstr s = vnew();

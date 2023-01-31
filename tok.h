@@ -47,4 +47,5 @@ struct Tokens {
 };
 
 struct Tokens* tokenize(char* str);
+void retokenize(struct Tokens* toks, char* str);
 void tokfree(struct Tokens* t);
