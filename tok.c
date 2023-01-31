@@ -1,10 +1,11 @@
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "errors.h"
 #include "tok.h"
 
 // FOR DEBUG
-#include <stdio.h>
+// #include <stdio.h>
 
 // To differentiate our many different types of strings we have sometimes
 typedef char* vstr;
@@ -12,6 +13,7 @@ typedef char* vstr;
 static inline void skip(char* s, u32* idx);
 static inline vstr symb(char* str, u32 idx);
 static inline i32 expect(char* s, u32 idx, char* e);
+static inline u32 findeos(char* s, u32 idx);
 
 hashtable* keywords = NULL;
 
@@ -40,6 +42,8 @@ struct Tokens* tokenize(char* str) {
 	// Makes it easy to push tokens
 	#define tok(...) push(t, { .loc = idx, .type = __VA_ARGS__ }), idx += t[vlen(t) - 1].len//,\
 		// printf("Pushed token with length %d at idx %d on line %d\n", t[vlen(t) - 1].len, t[vlen(t) - 1].loc, __LINE__)
+	#define throw(...) { error_at(str, idx, __VA_ARGS__); goto error; }
+	#define SKIP skip(str, &idx);
 
 	while (str[idx]) {
 		if(isspace(str[idx])) goto end;
@@ -87,32 +91,33 @@ struct Tokens* tokenize(char* str) {
 
 						// TODO: FUNCTIONS PLS FINISH THIS AND DON'T EXPECT THIS TO WORK
 						if(sym[0] == 'f') {
+
+							// Expect name after function
 							tok(DECL, .len = 2, .val = { .decl = FN });
-							skip(str, &idx);
-							
-							if(!isalnum(str[idx])) {
-								error_at(str, idx, "Expected function name after 'fn'.");
-								goto error;
-							}
+							SKIP
+							if(!isalnum(str[idx])) throw("Expected function name after 'fn'.");
 							
 							vstr name = symb(str, idx);
-							tok(IDENT, .val = { .s = name });
+							tok(IDENT, .len = vlen(name), .val = { .s = name });
 
 							i32 paren = expect(str, idx, "(");
-							if(paren < 0) {
-								error_at(str, idx, "Expected '(' after function name in function declaration.");
-								goto error;
-							}
+							if(paren < 0) throw("Expected '(' after function name in function declaration.");
 							
 						} else if(sym[0] == 'l') {
 							tok(DECL, .len = 3, .val = { .decl = LET });
+							SKIP
+							if(!isalpha(str[idx]) && str[idx] != '_') throw("Expected identifier after variable declaration, instead got '%c'", str[idx]);
+
+							vstr name = symb(str, idx);
+							tok(IDENT, .len = vlen(name));
 							
+							u32 eos = findeos(str, idx);
 						}
 						continue;
 					case ELSE: {
 						u32 start = idx;
 						idx += 4;
-						skip(str, &idx);
+						SKIP
 
 						// Allocs a string for the `if`
 						vstr maybeif = symb(str, idx);
@@ -132,7 +137,10 @@ struct Tokens* tokenize(char* str) {
 						tok(*token, .len = vlen(sym), .val = { .s = sym });
 						continue;
 				}
-			} else tok(IDENT, .len = vlen(sym), .val = { .s = sym });
+			} else {
+				tok(IDENT, .len = vlen(sym), .val = { .s = sym });
+				continue;
+			}
 		}
 
 	end:
@@ -172,6 +180,13 @@ static inline vstr symb(char* str, u32 idx) {
 }
 
 static inline void skip(char* s, u32* idx) { while(s[*idx] == ' ' || s[*idx] == '\n') (*idx)++; }
+static inline u32 findeos(char* s, u32 idx) {
+	while(s[idx]
+		&& ((s[idx] == '/' && s[idx+1] == '/')
+		|| s[idx] == ';' || s[idx] == '\n')) idx ++;
+	return idx;
+}
+
 
 static inline i32 expect(char* s, u32 idx, char* e) {
 	while(s[idx] == ' ' || s[idx] == '\n') idx++;
