@@ -3,21 +3,32 @@ TESTSUITE := tests.h tests_end.h
 CC := gcc
 CFLAGS := -g
 
-tok: tokenizer.exe
-
-tokenizer.exe: tokenizer.o tok.o $(UTIL)
-	$(CC) $^ -o $@
-
-tokenizer.o: tokenizer.c $(TESTSUITE)
-	$(CC) $(CFLAGS) -c tokenizer.c -o tokenizer.o
-
-
-
+all: tok vec
 
 clean:
-	del *.o
+	@del *.o
+	@del *.exe
 
-.PHONY: tok clean
+tok: toktest.exe
+	@toktest
+vec: vectest.exe
+	@vectest
+
+.PHONY: tok vec clean
+
+
+
+# ============== Test bins ==============
+vectest.exe: vectest.o vec.o $(UTIL)
+	@$(CC) $^ -o $@
+toktest.exe: toktest.o tok.o $(UTIL)
+	@$(CC) $^ -o $@
+
+# ============= Test Builds =============
+toktest.o: toktest.c $(TESTSUITE)
+	$(CC) $(CFLAGS) -c toktest.c -o toktest.o
+vectest.o: vectest.c $(TESTSUITE)
+	$(CC) $(CFLAGS) -c vectest.c -o vectest.o
 
 # ----------- Base lib builds -----------
 vec.o: ../../util/vec.c

@@ -9,7 +9,7 @@
 TEST("Tokenize 'let' declaration")
 	tokenize("let name");
 	assert(t->toks[0].type == DECL);
-	assert(vlen(t->toks) == 1);
+	assert(vlen(t->toks) == 2);
 TEND()
 
 TEST("Tokenize Operators")

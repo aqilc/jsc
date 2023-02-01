@@ -1,25 +1,45 @@
 /*
  * SINGLE FILE TEST SUITE HEADER MACRO LIB
  * **LIMITED TO 50 TESTS**
+ https://stackoverflow.com/a/33206814/10013227
+ 🤬
  */
 
 #include <stdio.h>
-#include <stdbool.h>
 
-#define assert(x) do { if(x) break; printf("\nLINE %d: Test failed.\n", __LINE__); return 1; } while (0)
+int subtests_run = 0;
+int subtests_passed = 0;
+int asserts = 0;
+
+// Custom assert, requires something to be true to continue with the test.
+#define assert(x) do { if(x) {\
+	for(int tehueu = -1; tehueu < asserts; tehueu++) printf("\b\b");\
+	for(int tehueu = -1; tehueu < asserts; tehueu++) printf("\033[1;32m%c \033[0m", 251);\
+	asserts ++; break; \
+} printf("\n(%s:%d) \033[1;31mFatal error\033[0m: Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); return 1; } while (0)
+
+#define SUBTESTINDENT "  "
+
+// A sub test, which checks if something is going according to plan but if it's not, it can still continue
 #define subtest(x, y) do {\
-	subtests_run = true;\
-	printf("\nSubtest '" x "' running");\
-	if(x) { puts(" ... passed"); break; }\
-	printf("\nLINE %d: Subtest '" x "' failed.\n", __LINE__);\
-	return 1;\
+	subtests_run++;\
+	printf("\n"SUBTESTINDENT"%d) %-*s", subtests_run, 40 - strlen(SUBTESTINDENT), "'"x"'");\
+	if(y) { printf("\033[42;30m PASSED \033[0m"); subtests_passed++; break; }\
+	printf("\n"SUBTESTINDENT"(%s:%d) \033[1;31mSubtest '" x "' (#%d) failed.\033[0m\n", __FILE__, __LINE__, subtests_run);\
 } while (0)
 
-int tests_run;
-bool subtests_run;
 
-// Defines custom assert function so it's easier to control
-#define assert(x) do { if(x) break; printf("\nLINE %d: Test failed.\n", __LINE__); return 1; } while (0)
+// For subtests with multiple checks
+#define substart(x) do {\
+	asserts = 0;\
+	subtests_run++;\
+	printf("\n"SUBTESTINDENT"%d) %-*s", subtests_run, 40 - strlen(SUBTESTINDENT), "'"x"'");\
+} while(0)
+
+#define subend(x) do {\
+	if(x) { printf("\033[42;30m PASSED \033[0m"); subtests_passed++; break; }\
+	printf("\n"SUBTESTINDENT"(%s:%d) \033[1;31mSubtest #%d failed.\033[0m\n", __FILE__, __LINE__, subtests_run);\
+} while(0)
 
 
 // Macro based testing framework starts here -------------------------------------------------------
@@ -27,21 +47,33 @@ bool subtests_run;
 #define TESTCLEAN
 
 #define CONCAT(a, b) a##b
-#define MACCONCAT(a, b) CONCAT(a, b)
+// #define MACCONCAT(a, b) CONCAT(a, b)
 #define TESTFUNCRET int
 #define TESTFUNCARGS (void)
-#define TEST(name) \
-TESTFUNCRET MACCONCAT(test_, __COUNTER__)TESTFUNCARGS {\
-	printf("LINE %d: Running test #%d, \"%s\"", __LINE__, tests_run + 1, name);\
-	tests_run++;\
+
+
+#define TEST_(name, N) \
+TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
+	asserts = 0;\
+	printf("%d) %-40.40s", N + 1, "'"name"'");\
 	TESTINIT
+#define TEST(name) TEST_(name, __COUNTER__)
 
 #define TEND() TESTCLEAN\
 	if(!subtests_run)\
-		puts(" ... passed");\
-	else puts("All subtests passed.");\
+		puts("\033[42;30m PASSED \033[0m");\
+	else {\
+		int allpassed = subtests_run == subtests_passed;\
+		if(allpassed) puts("\n"SUBTESTINDENT"All subtests passed.");\
+		else printf(SUBTESTINDENT"%d / %d subtests passed.\n", subtests_passed, subtests_run);\
+		subtests_run = 0;\
+		subtests_passed = 0;\
+		if(!allpassed) return 1;\
+	}\
 	return 0;\
 }
+
+
 
 #define TESTFUNGEN__(N) TESTFUNC##N
 #define TESTFUNGEN_(N) TESTFUNGEN__(N)
@@ -105,7 +137,7 @@ TESTFUNCRET MACCONCAT(test_, __COUNTER__)TESTFUNCARGS {\
 /*
 	Test format:
 TEST("name")
-	
+	subtest("name")
 TEND()
 */
 
