@@ -59,11 +59,11 @@ void* vcat(void* a, void* b);
 void vfree(void* v);
 void vclear_(void** v);
 // void _alloc(struct vecdata** data, u8 size);
-void remove_(void* v, u16 size, u32 pos);
-void* push_(void** v, u16 size);
+void remove_(void* v, u32 size, u32 pos);
+void* push_(void** v, u32 size);
 void pushs_(void** v, char* str);
 void pushsf_(void** v, char* fmt, ...);
-void* unshift_(void** v, u16 size);
-void* pop_(void* v, u16 size);
+void* unshift_(void** v, u32 size);
+void* pop_(void* v, u32 size);
 
 #endif
