@@ -14,9 +14,12 @@ TEST("Retokenization resetting buffers.")
 TEND()
 
 TEST("Tokenize 'let' declaration")
-	struct Tokens* t = tokenize("let name");
-	asserteq(vlen(t->toks), 2);
+	struct Tokens* t = tokenize("let name = 2");
+	asserteq(vlen(t->toks), 4);
 	asserteq(t->toks[0].type, DECL);
+	asserteq(t->toks[1].type, IDENT);
+	asserteq(t->toks[2].type, SET);
+	asserteq(t->toks[3].type, NUM);
 TEND()
 
 TEST("Tokenize Operators")
