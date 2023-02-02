@@ -77,6 +77,6 @@ int main() {
 	if(!failed) printf("ALL TESTS PASSED!! Nice job bro.");
 	else if(failed == tests) printf("All tests failed. Spectacular.");
 	else printf("%d / %d tests passed.", tests - failed, tests);
-	printf(" Took "TERMBLUEBOLD"%.1f ms"TERMRESET"\n", totaltime / (double)(CLOCKS_PER_SEC / 1000));
+	printf(" Took "TERMBLUEBOLD"%.2f ms"TERMRESET"\n", totaltime * 1000.0);
 	return 0;
 }

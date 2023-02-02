@@ -23,9 +23,6 @@ TEST("Vector push")
 	subtest("Push big struct", w[0].a == 5);
 	vfree(w);
 
-	// ((char*)(0))[100000] = 0;
-
-
 	substart("Push strings");
 	
 		// Smol string test
@@ -75,10 +72,10 @@ TEST("Vector clear")
 
 	// substart("Stress test");
 	u8 halfway_reached = 0;
-	for(int i = 0; i < 10000; i += 8000000 / (i + 2000)) {
+	for(int i = 0; i < 10000; i += 80000000 / (i + 40000)) {
 		for(int j = 0; j < i; j++) push(v, {});
 		assert(vlen(v) == i);
-		vclear(v);
+		vclear(v); 
 		if(i == 0) subtest("Stresstest: empty", vlen(v) == 0);
 		if(!halfway_reached && i >= 5000) { halfway_reached = 1; subtest("Stresstest: >5k", vlen(v) == 0); }
 	}

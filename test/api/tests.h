@@ -6,10 +6,9 @@
  */
 
 #include <stdio.h>
-#include <time.h>
 
-clock_t starttime;
-clock_t totaltime;
+double starttime;
+double totaltime;
 
 int subtests_run = 0;
 int subtests_passed = 0;
@@ -29,6 +28,29 @@ int asserts = 0;
 #define TESTNAMELIMIT 60
 
 
+// https://stackoverflow.com/a/2349941/10013227
+#ifdef WIN32
+#include <profileapi.h>
+double get_time() {
+	LARGE_INTEGER t, f;
+	QueryPerformanceCounter(&t);
+	QueryPerformanceFrequency(&f);
+	return (double)t.QuadPart/(double)f.QuadPart;
+}
+
+#else
+#include <sys/time.h>
+#include <sys/resource.h>
+
+double get_time() {
+	struct timeval t;
+	struct timezone tzp;
+	gettimeofday(&t, &tzp);
+	return t.tv_sec + t.tv_usec*1e-6;
+}
+#endif
+
+
 // ------------------------------------------------------------------- SUBTESTS -------------------------------------------------------------------
 #define SUBTESTINDENT "  "
 
@@ -38,11 +60,14 @@ int asserts = 0;
 
 #define SUBTESTPASSOUTPUT(x) {\
 		totaltime += ANUDSNEADHUNSEADHUNDE;\
-		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f MS "TERMRESET"", asserts * 2,\
+		double tmul = 1000.0;\
+		char* timeunit = "ms";\
+		if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\xe6s";\
+		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"", asserts * 2,\
 			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 2,\
 			"\xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB ",\
-			(double)ANUDSNEADHUNSEADHUNDE / (CLOCKS_PER_SEC / 1000));\
-			subtests_passed++; asserts = 0; starttime = clock(); break;\
+			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
+			subtests_passed++; asserts = 0; starttime = get_time(); break;\
 	}
 
 #define SUBTESTINIT(x) subtests_run++;\
@@ -50,20 +75,20 @@ int asserts = 0;
 
 // A sub test, which checks if something is going according to plan but if it's not, it can still continue
 #define subtest(x, y) do {\
-	clock_t ANUDSNEADHUNSEADHUNDE = (clock() - starttime);\
+	double ANUDSNEADHUNSEADHUNDE = (get_time() - starttime);\
 	SUBTESTINIT(x);\
 	if(y) SUBTESTPASSOUTPUT(y)\
 	printf("\n"SUBTESTINDENT"(%s:%d) "TERMREDBOLD"Subtest '" x "' (#%d) failed."TERMRESET"\n", __FILE__, __LINE__, subtests_run);\
-	starttime = clock(); asserts = 0;\
+	starttime = get_time(); asserts = 0;\
 } while (0)
 
 // For subtests with multiple checks
-#define substart(x) do { SUBTESTINIT(x); starttime = clock(); } while(0)
+#define substart(x) do { SUBTESTINIT(x); starttime = get_time(); } while(0)
 #define subend(x) do {\
-	clock_t ANUDSNEADHUNSEADHUNDE = (clock() - starttime);\
+	double ANUDSNEADHUNSEADHUNDE = (get_time() - starttime);\
 	if(x) SUBTESTPASSOUTPUT(x)\
 	printf("\n"SUBTESTINDENT"(%s:%d) "TERMREDBOLD"Subtest #%d failed."TERMRESET"\n", __FILE__, __LINE__, subtests_run);\
-	starttime = clock(); asserts = 0;\
+	starttime = get_time(); asserts = 0;\
 } while(0)
 
 
@@ -80,19 +105,25 @@ int asserts = 0;
 TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	asserts = 0;\
 	printf(TERMYELLOW"%d)"TERMRESET" %-"TESTNAMELIMITSTR"."TESTNAMELIMITSTR"s", N + 1, "'"name"'");\
-	starttime = clock();\
+	starttime = get_time();\
 	TESTINIT
 #define TEST(name) TEST_(name, __COUNTER__)
 
 #define TEND() TESTCLEAN\
-	clock_t ANUDSNEADHUNSEADHUNDE = (clock() - starttime); /* Measures the amount of clocks the test took*/\
+	double ANUDSNEADHUNSEADHUNDE = (get_time() - starttime); /* Measures the amount of clocks the test took*/\
 	totaltime += ANUDSNEADHUNSEADHUNDE;\
+	double tmul = 1000.0;\
+	char* timeunit = "ms";\
+	if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\xe6s";\
 	if(!subtests_run)\
-		printf(TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f MS "TERMRESET"\n", (double)ANUDSNEADHUNSEADHUNDE / (CLOCKS_PER_SEC / 1000)); /* If this was a straight test with no subtests, just print out test passed message*/\
+		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"\n", asserts * 2,\
+			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 2,\
+			"\xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB ",\
+			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);/* If this was a straight test with no subtests, just print out test passed message*/\
 	else {\
 		int allpassed = subtests_run == subtests_passed;/* Otherwise check subtests*/\
-		if(allpassed) puts("\n"SUBTESTINDENT"All subtests passed.");\
-		else printf(SUBTESTINDENT"%d / %d subtests passed.\n", subtests_passed, subtests_run);\
+		if (allpassed) puts("");\
+		else printf(SUBTESTINDENT TERMREDBGBLACK" ERROR "TERMRESET" %d subtests tests failed.\n", subtests_run - subtests_passed);\
 		subtests_run = 0;\
 		subtests_passed = 0;\
 		if(!allpassed) return 1;\

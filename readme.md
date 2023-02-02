@@ -17,6 +17,7 @@ The current name is temporary; these are a few other names I thought of: Luca, M
 - Lanugage Design:
 	- Parsable in a single pass, no need to backtrack or anything
 	- NONVERBOSE as much as possible, but never making anything confusing or ambiguous
+		- Be familiar to users of other languages
 	- Easy to type, easy to read
 	- I plan to incorporate support for JSON and JS Objects as dicts
 
@@ -28,8 +29,6 @@ The current name is temporary; these are a few other names I thought of: Luca, M
 	- `;`s are optional when making a single statement in a line.
 
 ## Stage 1 of JSC
-
-- Main syntax points:
 
 ```rust
 let a = 1u16 // ; optional
@@ -80,9 +79,9 @@ return features(); // return opcode for program
 	- Defines a type of interface for types and 
 - Introduces Structs, which are actually similar to classes and objects in JS, but can only set defined members and accessing undefined members results in an error
 	- Can use strings to access members too.
-		- Has to be wrapped in error handling <code>obj["x"]?</code>
+		- Has to be wrapped in error handling <code>obj["x"]**?**</code>
 
-```rust
+```javascript
 // Heap allocated array
 let hi = []
 hi.reduce((a, b) => a + b) // which has traits implemented internally, also anon funcs!!
