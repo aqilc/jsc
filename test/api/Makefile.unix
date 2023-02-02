@@ -1,9 +1,7 @@
-# https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc/
-
 UTIL := vec.o hash.o hashfunc.o errors.o
 TESTSUITE := tests.h tests_end.h
 CC := gcc
-CFLAGS := -ggdb
+CFLAGS := -g
 
 
 # if ($(OS),Windows_NT)
@@ -21,22 +19,23 @@ CFLAGS := -ggdb
 all: tok vec
 
 clean:
-	del *.o
-	del *.exe
+	rm *.o
+	rm *.exe
+	rm *.bin
 
-tok: toktest.exe
-	@toktest.exe
-vec: vectest.exe
-	@vectest.exe
+tok: toktest.bin
+	@./toktest.bin
+vec: vectest.bin
+	@./vectest.bin
 
 .PHONY: tok vec clean
 
 
 
 # ============== Test bins ==============
-vectest.exe: vectest.o vec.o $(UTIL)
+vectest.bin: vectest.o vec.o $(UTIL)
 	@$(CC) $^ -o $@
-toktest.exe: toktest.o tok.o $(UTIL)
+toktest.bin: toktest.o tok.o $(UTIL)
 	@$(CC) $^ -o $@
 
 # ============= Test Builds =============

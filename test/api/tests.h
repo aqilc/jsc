@@ -6,48 +6,72 @@
  */
 
 #include <stdio.h>
+#include <time.h>
+
+clock_t starttime;
+clock_t totaltime;
 
 int subtests_run = 0;
 int subtests_passed = 0;
 int asserts = 0;
 
-// Custom assert, requires something to be true to continue with the test.
-#define assert(x) do { if(x) {\
-	for(int tehueu = -1; tehueu < asserts; tehueu++) printf("\b\b");\
-	for(int tehueu = -1; tehueu < asserts; tehueu++) printf("\033[1;32m%c \033[0m", 251);\
-	asserts ++; break; \
-} printf("\n(%s:%d) \033[1;31mFatal error\033[0m: Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); return 1; } while (0)
+// Terminal colors defines
+#define TERMGREENBGBLACK "\033[42;30m"
+#define TERMREDBGBLACK "\033[41;30m"
+#define TERMGREENBOLD "\033[1;32m"
+#define TERMREDBOLD "\033[1;31m"
+#define TERMBLUEBOLD "\033[1;34m"
+#define TERMBLUEBG "\033[44;30m"
+#define TERMYELLOW "\033[33m"
+#define TERMRESET "\033[0m"
 
+#define TESTNAMELIMITSTR "60"
+#define TESTNAMELIMIT 60
+
+
+// ------------------------------------------------------------------- SUBTESTS -------------------------------------------------------------------
 #define SUBTESTINDENT "  "
+
+// Custom assert, requires something to be true to continue with the test.
+#define assert(x) do { if(x) { asserts ++; break; } printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); return 1; } while (0)
+#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (x), (y)); return 1; } while (0)
+
+#define SUBTESTPASSOUTPUT(x) {\
+		totaltime += ANUDSNEADHUNSEADHUNDE;\
+		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f MS "TERMRESET"", asserts * 2,\
+			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 2,\
+			"\xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB ",\
+			(double)ANUDSNEADHUNSEADHUNDE / (CLOCKS_PER_SEC / 1000));\
+			subtests_passed++; asserts = 0; starttime = clock(); break;\
+	}
+
+#define SUBTESTINIT(x) subtests_run++;\
+	printf("\n"SUBTESTINDENT TERMYELLOW"%d)"TERMRESET" %-*s", subtests_run, TESTNAMELIMIT - strlen(SUBTESTINDENT), "'"x"'")
 
 // A sub test, which checks if something is going according to plan but if it's not, it can still continue
 #define subtest(x, y) do {\
-	subtests_run++;\
-	printf("\n"SUBTESTINDENT"%d) %-*s", subtests_run, 40 - strlen(SUBTESTINDENT), "'"x"'");\
-	if(y) { printf("\033[42;30m PASSED \033[0m"); subtests_passed++; break; }\
-	printf("\n"SUBTESTINDENT"(%s:%d) \033[1;31mSubtest '" x "' (#%d) failed.\033[0m\n", __FILE__, __LINE__, subtests_run);\
+	clock_t ANUDSNEADHUNSEADHUNDE = (clock() - starttime);\
+	SUBTESTINIT(x);\
+	if(y) SUBTESTPASSOUTPUT(y)\
+	printf("\n"SUBTESTINDENT"(%s:%d) "TERMREDBOLD"Subtest '" x "' (#%d) failed."TERMRESET"\n", __FILE__, __LINE__, subtests_run);\
+	starttime = clock(); asserts = 0;\
 } while (0)
 
-
 // For subtests with multiple checks
-#define substart(x) do {\
-	asserts = 0;\
-	subtests_run++;\
-	printf("\n"SUBTESTINDENT"%d) %-*s", subtests_run, 40 - strlen(SUBTESTINDENT), "'"x"'");\
-} while(0)
-
+#define substart(x) do { SUBTESTINIT(x); starttime = clock(); } while(0)
 #define subend(x) do {\
-	if(x) { printf("\033[42;30m PASSED \033[0m"); subtests_passed++; break; }\
-	printf("\n"SUBTESTINDENT"(%s:%d) \033[1;31mSubtest #%d failed.\033[0m\n", __FILE__, __LINE__, subtests_run);\
+	clock_t ANUDSNEADHUNSEADHUNDE = (clock() - starttime);\
+	if(x) SUBTESTPASSOUTPUT(x)\
+	printf("\n"SUBTESTINDENT"(%s:%d) "TERMREDBOLD"Subtest #%d failed."TERMRESET"\n", __FILE__, __LINE__, subtests_run);\
+	starttime = clock(); asserts = 0;\
 } while(0)
 
 
-// Macro based testing framework starts here -------------------------------------------------------
+// ---------------------------------------------------- Macro based testing framework starts here ----------------------------------------------------
 #define TESTINIT
 #define TESTCLEAN
 
 #define CONCAT(a, b) a##b
-// #define MACCONCAT(a, b) CONCAT(a, b)
 #define TESTFUNCRET int
 #define TESTFUNCARGS (void)
 
@@ -55,15 +79,18 @@ int asserts = 0;
 #define TEST_(name, N) \
 TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	asserts = 0;\
-	printf("%d) %-40.40s", N + 1, "'"name"'");\
+	printf(TERMYELLOW"%d)"TERMRESET" %-"TESTNAMELIMITSTR"."TESTNAMELIMITSTR"s", N + 1, "'"name"'");\
+	starttime = clock();\
 	TESTINIT
 #define TEST(name) TEST_(name, __COUNTER__)
 
 #define TEND() TESTCLEAN\
+	clock_t ANUDSNEADHUNSEADHUNDE = (clock() - starttime); /* Measures the amount of clocks the test took*/\
+	totaltime += ANUDSNEADHUNSEADHUNDE;\
 	if(!subtests_run)\
-		puts("\033[42;30m PASSED \033[0m");\
+		printf(TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f MS "TERMRESET"\n", (double)ANUDSNEADHUNSEADHUNDE / (CLOCKS_PER_SEC / 1000)); /* If this was a straight test with no subtests, just print out test passed message*/\
 	else {\
-		int allpassed = subtests_run == subtests_passed;\
+		int allpassed = subtests_run == subtests_passed;/* Otherwise check subtests*/\
 		if(allpassed) puts("\n"SUBTESTINDENT"All subtests passed.");\
 		else printf(SUBTESTINDENT"%d / %d subtests passed.\n", subtests_passed, subtests_run);\
 		subtests_run = 0;\
@@ -72,7 +99,6 @@ TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	}\
 	return 0;\
 }
-
 
 
 #define TESTFUNGEN__(N) TESTFUNC##N

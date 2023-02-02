@@ -47,9 +47,13 @@ TEST("Vector push")
 
 
 	char* s2 = vnew();
-	printf("%d%f%s", 10, 1.2, "hi");
+	pushsf(s2, "%d%f%s", 10, 1.2, "hi");
 	subtest("Push formatted string", vlen(s2) == 12);
 TEND()
+
+struct random {
+	struct big* hi;
+};
 
 TEST("Vector clear")
 	struct big* v = vnew();
@@ -58,7 +62,45 @@ TEST("Vector clear")
 	push(v, {});
 
 	vclear(v);
-	assert(vlen(v) == 0);
+	subtest("Clear initial", vlen(v) == 0);
+
+	push(v, {});
+	push(v, {});
+	push(v, {});
+	push(v, {});
+	assert(vlen(v) == 4);
+	
+	vclear(v);
+	subtest("Clear again", vlen(v) == 0);
+
+	// substart("Stress test");
+	u8 halfway_reached = 0;
+	for(int i = 0; i < 10000; i += 8000000 / (i + 2000)) {
+		for(int j = 0; j < i; j++) push(v, {});
+		assert(vlen(v) == i);
+		vclear(v);
+		if(i == 0) subtest("Stresstest: empty", vlen(v) == 0);
+		if(!halfway_reached && i >= 5000) { halfway_reached = 1; subtest("Stresstest: >5k", vlen(v) == 0); }
+	}
+	subtest("Stresstest: Finished", 1);
+
+	struct random* hi = malloc(sizeof(struct random));
+	hi->hi = vnew();
+	push(hi->hi, {});
+	push(hi->hi, {});
+	push(hi->hi, {});
+
+	vclear(hi->hi);
+	subtest("Subfield: Clear initial", vlen(hi->hi) == 0);
+	
+	push(hi->hi, {});
+	push(hi->hi, {});
+	push(hi->hi, {});
+	push(hi->hi, {});
+	assert(vlen(hi->hi) == 4);
+	
+	vclear(hi->hi);
+	subtest("Subfield: Push + Clear again", vlen(hi->hi) == 0);
 TEND();
 
 
