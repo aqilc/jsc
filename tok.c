@@ -5,7 +5,7 @@
 #include "tok.h"
 
 // FOR DEBUG
-// #include <stdio.h>
+#include <stdio.h>
 
 // To differentiate our many different types of strings we have sometimes
 typedef char* vstr;
@@ -55,8 +55,9 @@ void retokenize(struct Tokens* toks, char* str) {
 	while((item = htdfast(toks->funcs))) free(item);
 	while((item = htdfast(toks->structs))) free(item);
 	htreset(toks->vars); htreset(toks->funcs); htreset(toks->structs);
-
-	parse(toks, str);
+	
+	if(*str)
+		parse(toks, str);
 }
 
 // Frees tokenizer output
@@ -74,16 +75,18 @@ void tokfree(struct Tokens* t) {
 
 
 static inline void parse(struct Tokens* toks, char* str) {
-	u32 idx;
+	u32 idx = 0;
 	struct Token* t = toks->toks;
 
 	// Makes it easy to push tokens
-	#define tok(...) push(t, { .loc = idx, .type = __VA_ARGS__ }), idx += t[vlen(t) - 1].len//,\
-		// printf("Pushed token with length %d at idx %d on line %d\n", t[vlen(t) - 1].len, t[vlen(t) - 1].loc, __LINE__)
+	#define tok(x, l, ...) push(t, { .loc = idx, .type = x, .len = l, __VA_ARGS__ }), idx += l//,\
+		// printf("\nPushed token '"#x"' with length %d at idx %d on line %d", l, idx - l, __LINE__)
 	#define throw(...) { error_at(str, idx, __VA_ARGS__); goto error; }
 	#define SKIP skip(str, &idx);
 
 	while (str[idx]) {
+		// printf("%c", str[idx]);
+		
 		if(isspace(str[idx])) goto end;
 
 		// Evaluates a number
@@ -103,19 +106,20 @@ static inline void parse(struct Tokens* toks, char* str) {
 				num = atoi(numstr);
 			} else num = str[idx] - '0';
 
-			tok(NUM, .val = num, .len = len);
+			tok(NUM, len, .val = num);
 			continue;
 		}
 
 		// Operators
 		switch(str[idx]) {
-			case '=': tok(OP, .val = { .op = SET }, .len = 1); continue;
+			case '=': tok(OP, 1, .val = { .op = SET }); continue;
 			case '+':
 				if(str[idx + 1] == '=') {
-					tok(OP, .val = { .op = ADDSET }, .len = 2);
+				// puts("got here?");
+					tok(OP, 2, .val = { .op = ADDSET });
 					continue;
 				}
-				tok(OP, .val = { .op = ADD }, .len = 1);
+				tok(OP, 1, .val = { .op = ADD });
 				continue;
 		}
 
@@ -131,27 +135,27 @@ static inline void parse(struct Tokens* toks, char* str) {
 						if(sym[0] == 'f') {
 
 							// Expect name after function
-							tok(DECL, .len = 2, .val = { .decl = FN });
+							tok(DECL, 2, .val = { .decl = FN });
 							SKIP
 							if(!isalnum(str[idx])) throw("Expected function name after 'fn'.");
 							
 							vstr name = symb(str, idx);
-							tok(IDENT, .len = vlen(name), .val = { .s = name });
+							tok(IDENT, vlen(name), .val = { .s = name });
 
 							i32 paren = expect(str, idx, "(");
 							if(paren < 0) throw("Expected '(' after function name in function declaration.");
 							
 						} else if(sym[0] == 'l') {
-							tok(DECL, .len = 3, .val = { .decl = LET });
+							tok(DECL, 3, .val = { .decl = LET });
 							SKIP
 							if(!isalpha(str[idx]) && str[idx] != '_') throw("Expected identifier after variable declaration, instead got '%c'", str[idx]);
 
 							vstr name = symb(str, idx);
-							tok(IDENT, .len = vlen(name));
-							
-							u32 eos = findeos(str, idx);
+							tok(IDENT, vlen(name));
+							// u32 eos = findeos(str, idx);
 						}
 						continue;
+							// printf("str[i] = '%c', idx = %d\n", str[idx], idx);
 					case ELSE: {
 						u32 start = idx;
 						idx += 4;
@@ -172,11 +176,11 @@ static inline void parse(struct Tokens* toks, char* str) {
 						continue;
 					}
 					default:
-						tok(*token, .len = vlen(sym), .val = { .s = sym });
+						tok(*token, vlen(sym) - 1, .val = { .s = sym });
 						continue;
 				}
 			} else {
-				tok(IDENT, .len = vlen(sym), .val = { .s = sym });
+				tok(IDENT, vlen(sym) - 1, .val = { .s = sym });
 				continue;
 			}
 		}
@@ -191,6 +195,8 @@ static inline void parse(struct Tokens* toks, char* str) {
 		while(str[idx] && str[idx] != '\n') idx++;
 		continue;
 	}
+
+	toks->toks = t;
 }
 
 
