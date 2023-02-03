@@ -33,7 +33,7 @@ char* codegen(struct Tokens* t) {
 	"	push %rbp\n"
 	"	mov %rsp, %rbp\n"
 	"	mov $%d, %rsp\n", 128); pushsf(ret,
-	"");
+	"	ret");
 	
 	
 	return ret;

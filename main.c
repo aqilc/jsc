@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <time.h>
 #include "codegen.h"
 
@@ -38,6 +39,47 @@ char* c(char* s1, char* s2) {
 	return out;
 }
 
+
+static char** strings = NULL;
+static int stringslen = 0;
+
+// Formats and returns a heap allocated string
+char* format(char* str, ...) {
+
+  // Gets a pointer to the arguments, with the stdlib func va_start
+  va_list args;
+  va_start(args, str);
+  va_list debug;
+  va_start(debug, str);
+
+  // Gets the length of the returned string
+  int len = vsnprintf(NULL, 0, str, args) + 1;
+
+  // Allocates a buffer on the heap with the length
+  char* arr = malloc(len);
+
+  // Prints and sets the last byte to 0 to indicate the end of the string
+  vsprintf(arr, str, debug);
+  arr[len - 1] = 0;
+  
+  va_end(args);
+  va_end(debug);
+
+  // Keeps track of a string array with it's length, which we free later.
+  if(strings == NULL) strings = malloc(sizeof(char*));
+  else strings = realloc(strings, sizeof(char*) * (stringslen + 1));
+  strings[stringslen] = arr;
+  stringslen ++;
+  
+  return arr;
+}
+
+void freeformat() {
+  for(int i = 0; i < stringslen; i ++)
+    free(strings[i]);
+  stringslen = 0;
+}
+
 void exec(char* cmd) {
 	printf("executing %s\n", cmd);
 	system(cmd);
@@ -54,4 +96,6 @@ int main(int argn, char** args) {
 	exec(c(c(c(c("link ", filename), ".obj msvcrt.lib /subsystem:console /out:"), filename), ".exe"));
 	// system("");
 }
+
+
 
