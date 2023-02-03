@@ -18,7 +18,6 @@ void* vcat(void* a, void* b) {
 
 void vclear_(void** v) {
 	struct vecdata* data = realloc((struct vecdata*) *v - 1, sizeof(struct vecdata));
-	if(data == 0) printf("BRO WTF IS HAPPENING WHY IS IT 0\n");
 	*v = data + 1;
 	data->cap = 0;
 	data->used = 0;
@@ -53,8 +52,12 @@ void pushs_(void** v, char* str) {
 void pushsf_(void** v, char* fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
+	va_list args2;
+	va_start(args2, fmt);
 	u32 len = vsnprintf(NULL, 0, fmt, args);
-	vsnprintf(push_((void**) v, len), len, fmt, args);
+	vsnprintf(push_(v, len), len, fmt, args2);
+	va_end(args);
+	va_end(args2);
 }
 
 // Adds an element at the start of the vector, ALSO CHANGES PTR
