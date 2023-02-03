@@ -62,10 +62,10 @@ double get_time() {
 		totaltime += ANUDSNEADHUNSEADHUNDE;\
 		double tmul = 1000.0;\
 		char* timeunit = "ms";\
-		if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\xe6s";\
+		if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\u03BCs";\
 		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"", asserts * 2,\
-			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 2,\
-			"\xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB ",\
+			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 4,\
+			"\u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 ",\
 			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
 			subtests_passed++; asserts = 0; starttime = get_time(); break;\
 	}
@@ -114,11 +114,11 @@ TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	totaltime += ANUDSNEADHUNSEADHUNDE;\
 	double tmul = 1000.0;\
 	char* timeunit = "ms";\
-	if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\xe6s";\
+	if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\u03BCs";\
 	if(!subtests_run)\
 		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"\n", asserts * 2,\
-			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 2,\
-			"\xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB \xFB ",\
+			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 4,\
+			"\u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 ",\
 			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);/* If this was a straight test with no subtests, just print out test passed message*/\
 	else {\
 		int allpassed = subtests_run == subtests_passed;/* Otherwise check subtests*/\

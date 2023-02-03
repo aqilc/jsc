@@ -6,7 +6,8 @@ unsigned int sigthing = 0;
 
 #if defined(_WIN32)
 // WINDOWS WHY ARE YOUR HEADERS SO BIG
-#include <errhandlingapi.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 LONG WINAPI plswork(PEXCEPTION_POINTERS pinfo) {
 	sigthing = pinfo->ExceptionRecord->ExceptionCode;
 	longjmp(owo, 1);
@@ -22,6 +23,7 @@ int main() {
 
 	// Win32 so simple
 	#if defined(_WIN32)
+	SetConsoleOutputCP(65001);
 	// https://stackoverflow.com/questions/1992816/how-to-handle-seg-faults-under-windows
 	SetUnhandledExceptionFilter(plswork);
 
