@@ -81,6 +81,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 	// Makes it easy to push tokens
 	#define tok(x, l, ...) push(t, { .loc = idx, .type = x, .len = l, __VA_ARGS__ }), idx += l//,\
 		// printf("\nPushed token '"#x"' with length %d at idx %d on line %d", l, idx - l, __LINE__)
+	#define last t[vlen(t) - 1]
 	#define throw(...) { error_at(str, idx, __VA_ARGS__); goto error; }
 	#define SKIP skip(str, &idx);
 
@@ -91,10 +92,10 @@ static inline void parse(struct Tokens* toks, char* str) {
 
 		// Evaluates a number
 		if(isdigit(str[idx])) {
-			int num; u32 len;
+			int num; u32 len = 1;
 
 			// If the number is longer than just a single digit, do a lot of stuff ig
-			if(isdigit(str[1])) {
+			if(isdigit(str[idx + 1])) {
 				
 				// Create a vector string to keep track of number chars
 				vstr numstr = vnew();
@@ -115,7 +116,6 @@ static inline void parse(struct Tokens* toks, char* str) {
 			case '=': tok(OP, 1, .val = { .op = SET }); continue;
 			case '+':
 				if(str[idx + 1] == '=') {
-				// puts("got here?");
 					tok(OP, 2, .val = { .op = ADDSET });
 					continue;
 				}
@@ -137,7 +137,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 							// Expect name after function
 							tok(DECL, 2, .val = { .decl = FN });
 							SKIP
-							if(!isalnum(str[idx])) throw("Expected function name after 'fn'.");
+							if(!isalpha(str[idx])) throw("Expected function name after 'fn'.");
 							
 							vstr name = symb(str, idx);
 							tok(IDENT, vlen(name), .val = { .s = name });
@@ -151,11 +151,11 @@ static inline void parse(struct Tokens* toks, char* str) {
 							if(!isalpha(str[idx]) && str[idx] != '_') throw("Expected identifier after variable declaration, instead got '%c'", str[idx]);
 
 							vstr name = symb(str, idx);
-							tok(IDENT, vlen(name));
-							// u32 eos = findeos(str, idx);
+							push(name, 0);
+							tok(IDENT, vlen(name) - 1, .val = { .s = name });
+							
 						}
 						continue;
-							// printf("str[i] = '%c', idx = %d\n", str[idx], idx);
 					case ELSE: {
 						u32 start = idx;
 						idx += 4;
