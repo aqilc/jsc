@@ -42,6 +42,10 @@ TEST("Vector push")
 	subend(1);
 	vfree(s);
 
+	char* n1 = vnew();
+	pushn(n1, 10, 'a');
+	
+
 
 	char* s2 = vnew();
 	pushsf(s2, "%d%f%s", 10, 1.2, "hi");

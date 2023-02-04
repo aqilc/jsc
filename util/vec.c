@@ -5,7 +5,7 @@
 
 // Just callocs a vec lol
 void* vnew() {
-	return (struct vecdata*)calloc(1, sizeof(struct vecdata)) + 1; }
+	return (struct vecdata_*)calloc(1, sizeof(struct vecdata_)) + 1; }
 
 // Combines two vectors into a new vector (USE THIS FOR STRING VECS INSTEAD OF _PUSHS PLS I BEG)
 void* vcat(void* a, void* b) {
@@ -17,7 +17,7 @@ void* vcat(void* a, void* b) {
 }
 
 void vclear_(void** v) {
-	struct vecdata* data = realloc((struct vecdata*) *v - 1, sizeof(struct vecdata));
+	struct vecdata_* data = realloc((struct vecdata_*) *v - 1, sizeof(struct vecdata_));
 	*v = data + 1;
 	data->cap = 0;
 	data->used = 0;
@@ -26,18 +26,18 @@ void vclear_(void** v) {
 void vfree(void* v) { free(_DATA(v)); }
 
 // Reallocs more size for the array, hopefully without moves o.o
-void* alloc_(struct vecdata* data, u32 size) {
+void* alloc_(struct vecdata_* data, u32 size) {
 	data->used += size;
 	if(data->cap < data->used) {
 		data->cap += data->used - data->cap;
-		return (struct vecdata*)realloc(data, sizeof(struct vecdata) + data->cap) + 1;
+		return (struct vecdata_*)realloc(data, sizeof(struct vecdata_) + data->cap) + 1;
 	}
 	return data + 1;
 }
 
 // Pushes more data onto the array, CAN CHANGE THE PTR U PASS INTO IT
 void* push_(void** v, u32 size) {
-	struct vecdata* data = _DATA(*v);
+	struct vecdata_* data = _DATA(*v);
 	data = _DATA(*v = alloc_(data, size));
 	return data->data + data->used - size;
 }
@@ -58,6 +58,11 @@ void pushsf_(void** v, char* fmt, ...) {
 	vsnprintf(push_(v, len), len, fmt, args2);
 	va_end(args);
 	va_end(args2);
+}
+
+void pushn_(void** v, u32 n, u32 size, void* thing) {
+	char* place = push_(v, n * size);
+	for(int i = 0; i < n; i ++) memcpy(place += size, thing, size);
 }
 
 // Adds an element at the start of the vector, ALSO CHANGES PTR
