@@ -16,6 +16,7 @@ int asserts = 0;
 
 // Terminal colors defines
 #define TERMGREENBGBLACK "\033[42;30m"
+#define TERMWHITEBGBLACK "\033[47;30m"
 #define TERMREDBGBLACK "\033[41;30m"
 #define TERMGREENBOLD "\033[1;32m"
 #define TERMREDBOLD "\033[1;31m"
@@ -55,8 +56,8 @@ double get_time() {
 #define SUBTESTINDENT "  "
 
 // Custom assert, requires something to be true to continue with the test.
-#define assert(x) do { if(x) { asserts ++; break; } printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); return 1; } while (0)
-#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (x), (y)); return 1; } while (0)
+#define assert(x) do { if(x) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
+#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (x), (y)); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
 
 #define SUBTESTPASSOUTPUT(x) {\
 		totaltime += ANUDSNEADHUNSEADHUNDE;\
@@ -123,7 +124,7 @@ TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	else {\
 		int allpassed = subtests_run == subtests_passed;/* Otherwise check subtests*/\
 		if (allpassed) puts("");\
-		else printf(SUBTESTINDENT TERMREDBGBLACK" ERROR "TERMRESET" %d subtests tests failed.\n", subtests_run - subtests_passed);\
+		else printf("\n"SUBTESTINDENT TERMREDBOLD" ERROR "TERMRESET" %d subtests tests failed.\n", subtests_run - subtests_passed);\
 		subtests_run = 0;\
 		subtests_passed = 0;\
 		if(!allpassed) return 1;\

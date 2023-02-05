@@ -62,7 +62,8 @@ void pushsf_(void** v, char* fmt, ...) {
 
 void pushn_(void** v, u32 n, u32 size, void* thing) {
 	char* place = push_(v, n * size);
-	for(int i = 0; i < n; i ++) memcpy(place += size, thing, size);
+	if(size == 1) memset(place, *((char*) thing), size);
+	else for(int i = 0; i < n; i ++) memcpy(place + size * i, thing, size);
 }
 
 // Adds an element at the start of the vector, ALSO CHANGES PTR

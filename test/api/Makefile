@@ -3,7 +3,7 @@
 UTIL := vec.o hash.o hashfunc.o errors.o
 TESTSUITE := tests.h tests_end.h
 CC := gcc
-CFLAGS := -ggdb
+CFLAGS := -g
 
 
 # if ($(OS),Windows_NT)

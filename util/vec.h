@@ -28,9 +28,9 @@ struct vecdata_ {
 // push(data, 5); expands to something like: *(int*)push_((void**) &data, 4) = (int) 5;
 
 // Push n items onto the vector, so we can allocate more space at once
-#define pushn(x, n, y) /*_Generic(*(x), */pushn_((void**) &(x), n, sizeof(*(x)), &((typeof(*(x))) {y}))//)
+#define pushn(x, n, y) /*_Generic(*(x), */pushn_((void**) &(x), (n), sizeof(*(x)), &((typeof(*(x))) {y}))//)
 // One for structs since that prev one didn't work for structs
-#define pushnst(x, n, y) pushn_((void**) &(x), n, sizeof(*(x)), &((typeof(*(x))) y))
+#define pushnst(x, n, y) pushn_((void**) &(x), (n), sizeof(*(x)), &((typeof(*(x))) y))
 
 // String push aliases so u don't have to &
 #define pushs(x, y) pushs_((void**) &(x), (y))
