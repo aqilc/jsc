@@ -45,6 +45,8 @@ struct vecdata_ {
 
 // Simplifies vclear calls
 #define vclear(v) vclear_((void**)&(v))
+// Simplifies vtostr calls
+#define vtostr(v) vtostr_((void**)&(v))
 
 // Pops off the last element and returns it
 #define pop(x) (pop_((x), sizeof(*(x))))
@@ -68,7 +70,14 @@ void* vnew();
 // Returns a *new* concatenated vector, use `pushv` if you don't want a new vec :D
 void* vcat(void* a, void* b);
 void vfree(void* v);
+
+// Returns a 1 if they're different, 0 if they're the same
+char vcmp(void* a, void* b);
+
+// Initialize a vector with a string straight away
+char* strtov(char* s);
 void vclear_(void** v);
+char* vtostr_(void** v);
 // void _alloc(struct vecdata_** data, u8 size);
 void remove_(void* v, u32 size, u32 pos);
 void* push_(void** v, u32 size);

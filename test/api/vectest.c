@@ -5,10 +5,19 @@
 struct big { u64 i,j,k,l,m,n,o,p,q,r,s,t,w,x,y,z,a,b,c,d,e,f,g,h; };
 
 TEST("Vector free")
-	vfree(vnew());
+	vfree(vnew());// just watch out for doublefree/segfault
 TEND()
 
-TEST("Vector push")
+TEST("Vector Conversions")
+	char* hi = strtov("hi");
+	asserteq(vlen(hi), 2);
+	hi = vtostr(hi);
+	asserteq(hi[3], 0);
+	asserteq(strlen(hi), 2);
+TEND()
+
+
+TEST("Vector `push`")
 
 	substart("Push single char");
 		char* v = vnew();
@@ -65,6 +74,11 @@ TEST("Vector push")
 		pushnst(n3, 20, {0});
 		asserteq(_DATA(n3)->used, 20 * sizeof(struct big));
 	subend(vlen(n3) == 20);
+
+	substart("Unshift (push to beginning)");
+		char* s3 = strtov("lol");
+		
+	subend(1);
 	vfree(n3);
 TEND()
 
@@ -123,6 +137,7 @@ TEST("Vector clear")
 	vfree(hi->hi);
 	free(hi);
 TEND();
+
 
 
 #include "tests_end.h"
