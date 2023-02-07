@@ -35,9 +35,7 @@ char* codegen(struct Tokens* t) {
 	pushsf(ret,
 	"	.globl main\n"
 	"main:\n"
-	"	push %rbp\n"
-	"	mov %rsp, %rbp\n"
-	"	mov $%d, %rsp\n", 128); pushsf(ret,
+	"	movl $1, %eax\n"
 	"	ret");
 	
 	
