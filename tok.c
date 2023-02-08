@@ -10,7 +10,7 @@
 // To differentiate our many different types of strings we have sometimes
 typedef char* vstr;
 
-static inline void skip(char* s, u32* idx);
+static inline bool skip(char* s, u32* idx);
 static inline vstr symb(char* str, u32 idx);
 static inline i32 expect(char* s, u32 idx, char* e);
 static inline void parse(struct Tokens* toks, char* str);
@@ -83,7 +83,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 		// printf("\nPushed token '"#x"' with length %d at idx %d on line %d", l, idx - l, __LINE__)
 	#define last t[vlen(t) - 1]
 	#define throw(...) { error_at(str, idx, __VA_ARGS__); goto error; }
-	#define SKIP skip(str, &idx);
+	#define SKIP skip(str, &idx)
 
 	while (str[idx]) {
 		// printf("%c", str[idx]);
@@ -136,18 +136,19 @@ static inline void parse(struct Tokens* toks, char* str) {
 
 							// Expect name after function
 							tok(DECL, 2, .val = { .decl = FN });
-							SKIP
+							SKIP;
 							if(!isalpha(str[idx])) throw("Expected function name after 'fn'.");
 							
 							vstr name = symb(str, idx);
 							tok(IDENT, vlen(name), .val = { .s = name });
-
+							SKIP;
 							i32 paren = expect(str, idx, "(");
 							if(paren < 0) throw("Expected '(' after function name in function declaration.");
+
 							
 						} else if(sym[0] == 'l') {
 							tok(DECL, 3, .val = { .decl = LET });
-							SKIP
+							SKIP;
 							if(!isalpha(str[idx]) && str[idx] != '_') throw("Expected identifier after variable declaration, instead got '%c'", str[idx]);
 
 							vstr name = symb(str, idx);
@@ -159,7 +160,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 					case ELSE: {
 						u32 start = idx;
 						idx += 4;
-						SKIP
+						SKIP;
 
 						// Allocs a string for the `if`
 						vstr maybeif = symb(str, idx);
@@ -171,7 +172,6 @@ static inline void parse(struct Tokens* toks, char* str) {
 						
 						// Or backtracks if there's no if
 						else push(t, { .loc = start - 4, .type = ELSE, .len = 4 });
-
 						vfree(sym); vfree(maybeif);
 						continue;
 					}
@@ -186,7 +186,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 		}
 
 	end:
-		idx++;
+		if(!SKIP) idx++;
 		continue;
 		
 	error:
@@ -207,7 +207,12 @@ static inline vstr symb(char* str, u32 idx) {
 	return s;
 }
 
-static inline void skip(char* s, u32* idx) { while(s[*idx] == ' ' || s[*idx] == '\n') (*idx)++; }
+static inline bool skip(char* s, u32* idx) {
+	bool skipped = false;
+	while(s[*idx] == ' ' || s[*idx] == '\n')
+		skipped = true, (*idx)++;
+	return skipped;
+}
 static inline u32 findeos(char* s, u32 idx) {
 	while(s[idx]
 		&& ((s[idx] == '/' && s[idx+1] == '/')

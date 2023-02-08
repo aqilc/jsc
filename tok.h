@@ -6,7 +6,9 @@ enum TokenType {
 	NUM,
 	STRING,
 	OP, // See enum below
-	PAREN, // for functions
+	ARG, // for functions, maybe generics
+	SCOPEB, // Start + end of scopes
+	SCOPEE,
 	IDENT, // val = string
 	DECL, // See enum below
 	RETURN,
@@ -24,16 +26,18 @@ struct Token {
 		u64 u;
 		float f;
 		double d;
-		// long double ld;
+		
 		enum {
 			FN, LET, STRUCT, TRAIT
 		} decl;
+		
 		enum {
 			ADD, SUB, MUL, DIV, SET,
 			ADDSET, SUBSET,
 			INCR, DECR,
 			GREATER, LESS, EQ, GREATEQ, LESSEQ,
 		} op;
+		
 		char* s; // For parsed strings
 	} val;
 };
