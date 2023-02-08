@@ -6,6 +6,8 @@ https://sonictk.github.io/asm_tutorial/
 https://stackoverflow.com/questions/36529449/why-are-rbp-and-rsp-called-general-purpose-registers
 https://stackoverflow.com/questions/892928/why-are-x86-registers-named-the-way-they-are
 
+god dang it why is assembly like this: https://c.compiler-explorer.com/z/K9aon84rE
+
 ASSEMBLY MAIN IDEAS:
 	REGISTERS:
 		* 14 General Purpose Registers on an x64 cpu: rax, rbx, rcx, rdx, rdi, rsi, r8, r9, r10, r11 r12, r13, r14 and r15
@@ -32,12 +34,14 @@ REFERENCES:
 char* codegen(struct Tokens* t) {
 	char* ret = vnew();
 
-	pushsf(ret,
+	pushs(ret,
+	"	.text\n"
+	"	.intel_syntax noprefix\n"
 	"	.globl main\n"
 	"main:\n"
 	"	movl $1, %eax\n"
 	"	ret");
 	
 	
-	return ret;
+	return vtostr(ret);
 }

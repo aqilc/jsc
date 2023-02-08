@@ -86,8 +86,8 @@ void exec(char* cmd) {
 }
 
 int main(int argn, char** args) {
-	char* str = codegen(tokenize(read(c("test/", c(args[1], ".rs")))));
-	char* filename = c("test/", args[1]);
+	char* str = codegen(tokenize(read(c("test/lang/", c(args[1], ".rs")))));
+	char* filename = c("test/asm/", args[1]);
 	char* asmfile = c(filename, ".asm");
 	FILE* ez = fopen(asmfile, "w+");
 	fputs(str, ez);
