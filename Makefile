@@ -1,7 +1,7 @@
 # Reference: https://stackoverflow.com/a/30602701/10013227
 
 CC := gcc
-CFLAGS := -o2
+CFLAGS := -o2 -g
 BUILDDIR := bin
 
 # https://stackoverflow.com/a/51156408/10013227

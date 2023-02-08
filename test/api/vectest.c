@@ -12,8 +12,10 @@ TEST("Vector Conversions")
 	char* hi = strtov("hi");
 	asserteq(vlen(hi), 2);
 	hi = vtostr(hi);
-	asserteq(hi[3], 0);
+	asserteq(_DATA(hi)->cap, 3);
+	asserteq(hi[2], 0);
 	asserteq(strlen(hi), 2);
+	vfree(hi);
 TEND()
 
 

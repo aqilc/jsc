@@ -1,3 +1,6 @@
+; nasm -f win32 -o "hello world.obj" "hello world.asm"
+; link "hello world.obj" user32.lib kernel32.lib msvcrt.lib libucrt.lib /subsystem:console /out:"hello world.exe"
+
 default rel
 
 extern printf
