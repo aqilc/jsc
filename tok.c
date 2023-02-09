@@ -27,8 +27,6 @@ void init_keywords() {
 	hti(keywords, "else", new_i(ELSE));
 }
 
-
-
 struct Tokens* tokenize(char* str) {
 
 	// Initializes the keyword dict

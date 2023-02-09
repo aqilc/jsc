@@ -27,6 +27,7 @@ ASSEMBLY MAIN IDEAS:
 
 REFERENCES:
 	* https://github.com/rui314/chibicc/blob/f814033d04c4cefdbcf8174d65011d484d69303c/codegen.c
+	* https://social.msdn.microsoft.com/Forums/vstudio/en-US/71a80e19-4e6a-41fe-b1db-26e331da474d/linking-errors-lnk2001-unresolved-external-symbol-when-compiled-by-nasm?forum=vclanguage
 */
 
 
@@ -35,11 +36,15 @@ char* codegen(struct Tokens* t) {
 	char* ret = vnew();
 
 	pushs(ret,
-	"	.text\n"
-	"	.intel_syntax noprefix\n"
-	"	.globl main\n"
-	"main:\n"
-	"	movl $1, %eax\n"
+	// "	.text\n"
+	// "	.intel_syntax noprefix\n"
+	"global _start\n"
+	"section .rdata\n"
+	"	db 0\n\n"
+	
+	"section .text\n"
+	"_start:\n"
+	"	xor eax, eax\n"
 	"	ret");
 	
 	
