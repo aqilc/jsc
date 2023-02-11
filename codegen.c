@@ -35,6 +35,8 @@ REFERENCES:
 char* codegen(struct Tokens* t) {
 	char* ret = vnew();
 
+	load_arch("x64");
+
 	pushs(ret,
 	// "	.text\n"
 	// "	.intel_syntax noprefix\n"
@@ -43,10 +45,9 @@ char* codegen(struct Tokens* t) {
 	"	db 0\n\n"
 	
 	"section .text\n"
-	"_start:\n"
-	"	xor eax, eax\n"
-	"	ret");
-	
+	"_start:\n");
+
+	cdg_exit(ret);
 	
 	return vtostr(ret);
 }
