@@ -11,19 +11,20 @@ god dang it why is assembly like this: https://c.compiler-explorer.com/z/K9aon84
 ASSEMBLY MAIN IDEAS:
 	REGISTERS:
 		* 14 General Purpose Registers on an x64 cpu: rax, rbx, rcx, rdx, rdi, rsi, r8, r9, r10, r11 r12, r13, r14 and r15
-			* AX: Accumulator, BX: Base, CX: Counter, DX: Data
-			* r_x subsets:
+			* General purpose registers:
+				* AX: Accumulator, BX: Base, CX: Counter, DX: Data
 				* _l (first 8), _h (second 8)
-				* _x(first word(16))
+				* _x(first word(16 bits))
 				* e_x(first 32 bits)
+				* r_x(first 64 bits)
 				* Can be used for other registers ending in x
 		* 2 Special Purpose registers: rbp, rsp
 			* rbp: Stack base pointer
 			* rsp: Stack pointer
-		* %rip = Instruction pointer.
+		* rip = Instruction pointer.
 
 	NOTES:
-		* lea %rax, [rel main]: moves the function ptr of main to %rax
+		* lea rax, [rel main]: moves the function ptr of main to %rax
 
 REFERENCES:
 	* https://github.com/rui314/chibicc/blob/f814033d04c4cefdbcf8174d65011d484d69303c/codegen.c
@@ -33,21 +34,11 @@ REFERENCES:
 
 
 char* codegen(struct Tokens* t) {
-	char* ret = vnew();
+	load_back("x64_asm");
 
-	load_arch("x64");
+	cdg_init();
 
-	pushs(ret,
-	// "	.text\n"
-	// "	.intel_syntax noprefix\n"
-	"global _start\n"
-	"section .rdata\n"
-	"	db 0\n\n"
+	cdg_exit();
 	
-	"section .text\n"
-	"_start:\n");
-
-	cdg_exit(ret);
-	
-	return vtostr(ret);
+	return cdg_prog();
 }

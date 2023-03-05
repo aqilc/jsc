@@ -92,8 +92,8 @@ int main(int argn, char** args) {
 	FILE* ez = fopen(asmfile, "w+");
 	fputs(str, ez);
 	puts(str);
-	puts(c(c("nasm -f win32 -o ", c(filename, ".obj ")), asmfile));
-	puts(c(c(c(c("link ", filename), ".obj /entry:start /subsystem:console /out:"), filename), ".exe"));
+	puts(c(c("nasm -f win64 -o ", c(filename, ".obj ")), asmfile));
+	puts(c(c(c(c("link ", filename), ".obj /subsystem:console /out:"), filename), ".exe"));
 	printf("\"%s\"\n", c(filename, ".exe"));
 	// system("");
 }
