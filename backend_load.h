@@ -1,3 +1,6 @@
-extern void (*cdg_exit)(char* p);
 
-void load_arch(char* arch);
+extern void  (*cdg_exit)(void);
+extern void  (*cdg_init)(void);
+extern char* (*cdg_prog)(void);
+
+void load_back(char* arch);
