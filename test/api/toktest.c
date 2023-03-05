@@ -22,11 +22,11 @@ TEND()
 TEST("Tokenize 'let' declaration")
 	tokenize("let name = 2");
 	asserteq(vlen(t->toks), 4);
-	asserteq(t->toks[0].type, DECL);
-	asserteq(t->toks[1].type, IDENT);
-	asserteq(t->toks[2].type, OP);
+	asserteq(t->toks[0].type,   DECL);
+	asserteq(t->toks[1].type,   IDENT);
+	asserteq(t->toks[2].type,   OP);
 	asserteq(t->toks[2].val.op, SET);
-	asserteq(t->toks[3].type, NUM);
+	asserteq(t->toks[3].type,   NUM);
 TEND()
 
 TEST("Tokenize Operators")

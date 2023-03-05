@@ -1,8 +1,7 @@
-global _start
 section .rdata
 	db 0
-
+global _start
 section .text
 _start:
-	xor eax, eax
+	xor rax, rax
 	ret

@@ -38,7 +38,7 @@ struct vecdata_ {
 
 
 // Push the entirety of a vec onto another
-#define pushv(x, y) memcpy(push_(&(x), _DATA(y)->used), y, _DATA(y)->used)
+#define pushv(x, y) memcpy(push_((void**) &(x), _DATA(y)->used), y, _DATA(y)->used)
 
 // Add values to the beginning of the vec
 #define unshift(x, ...) (*(typeof(x))unshift_((void**)&(x), sizeof(*(x))) = (typeof(*x)) __VA_ARGS__)
