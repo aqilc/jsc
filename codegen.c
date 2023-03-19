@@ -34,8 +34,7 @@ REFERENCES:
 
 
 char* codegen(struct Tokens* t) {
-	load_back("x64_asm");
-
+	
 	cdg_init();
 
 	cdg_exit();

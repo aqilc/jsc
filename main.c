@@ -86,6 +86,7 @@ void exec(char* cmd) {
 }
 
 int main(int argn, char** args) {
+  load_back("x64_asm");
 	char* str = codegen(tokenize(read(c("test/lang/", c(args[1], ".rs")))));
 	char* filename = c("test/asm/", args[1]);
 	char* asmfile = c(filename, ".asm");

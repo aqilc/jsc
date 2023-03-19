@@ -34,5 +34,5 @@
 	  "file": "hashfunc.c",
 	  "output": "hashfunc.o",
 	  "arguments": ["clang", "-xc", "hashfunc.c", "-I", ".", "-c"]
-	},
+	}
 ]
