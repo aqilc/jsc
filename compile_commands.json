@@ -1,38 +1,56 @@
 [
-	{
-	  "directory": "d:/projects/c/jsc/",
-	  "file": "main.c",
-	  "output": "main.o",
-	  "arguments": ["clang", "-xc", "main.c", "-I", ".", "-c"]
-	},
-	{
-	  "directory": "d:/projects/c/jsc/",
-	  "file": "codegen.c",
-	  "output": "codegen.o",
-	  "arguments": ["clang", "-xc", "codegen.c", "-I", ".", "-c"]
-	},
-	{
-	  "directory": "d:/projects/c/jsc/",
-	  "file": "tok.c",
-	  "output": "tok.o",
-	  "arguments": ["clang", "-xc", "tok.c", "-I", ".", "-c"]
-	},
-	{
-	  "directory": "d:/projects/c/jsc/util",
-	  "file": "vec.c",
-	  "output": "vec.o",
-	  "arguments": ["clang", "-xc", "vec.c", "-I", ".", "-c"]
-	},
-	{
-	  "directory": "d:/projects/c/jsc/util",
-	  "file": "hash.c",
-	  "output": "hash.o",
-	  "arguments": ["clang", "-xc", "hash.c", "-I", ".", "-c"]
-	},
-	{
-	  "directory": "d:/projects/c/jsc/util",
-	  "file": "hashfunc.c",
-	  "output": "hashfunc.o",
-	  "arguments": ["clang", "-xc", "hashfunc.c", "-I", ".", "-c"]
-	}
+  {
+    "directory": "d:/projects/c/jsc/",
+    "file": "main.c",
+    "output": "main.o",
+    "arguments": ["clang", "-xc", "main.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/",
+    "file": "codegen.c",
+    "output": "codegen.o",
+    "arguments": ["clang", "-xc", "codegen.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/",
+    "file": "tok.c",
+    "output": "tok.o",
+    "arguments": ["clang", "-xc", "tok.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/",
+    "file": "errors.c",
+    "output": "errors.o",
+    "arguments": ["clang", "-xc", "errors.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/",
+    "file": "backend_load.c",
+    "output": "backend_load.o",
+    "arguments": ["clang", "-xc", "backend_load.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/util",
+    "file": "vec.c",
+    "output": "vec.o",
+    "arguments": ["clang", "-xc", "vec.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/util",
+    "file": "hash.c",
+    "output": "hash.o",
+    "arguments": ["clang", "-xc", "hash.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/util",
+    "file": "hashfunc.c",
+    "output": "hashfunc.o",
+    "arguments": ["clang", "-xc", "hashfunc.c", "-I", ".", "-c"]
+  },
+  {
+    "directory": "d:/projects/c/jsc/backends",
+    "file": "x64_asm.c",
+    "output": "x64_asm.o",
+    "arguments": ["clang", "-xc", "x64_asm.c", "-I", ".", "-c"]
+  }
 ]

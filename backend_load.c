@@ -3,9 +3,9 @@
 #include "backend_load.h"
 
 
+
 #define GENERIC_FN (void (__cdecl *)(void))
 #define GENERIC_FN_PTR (void (__cdecl **)(void))
-
 
 // Func ptr definitions
 void  (*cdg_exit)(void);
@@ -21,6 +21,8 @@ struct funcnamesobj {
 	"cdg_init",       GENERIC_FN_PTR &cdg_init,
 	"cdg_prog",       GENERIC_FN_PTR &cdg_prog,
 };
+
+
 
 
 #ifdef _WIN32
