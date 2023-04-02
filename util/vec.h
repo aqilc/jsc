@@ -5,20 +5,10 @@
 #include <stdint.h>
 #include <string.h>
 
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef int8_t  i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-
 struct vecdata_ {
-	u32 used;
-	u32 cap;
-	u8 data[];
+	uint32_t used;
+	uint32_t cap;
+	uint8_t data[];
 };
 #define _DATA(x) ((struct vecdata_*)(x) - 1)
 #define vlen(x) (_DATA(x)->used / sizeof(*(x)))
@@ -79,12 +69,12 @@ char* strtov(char* s);
 void vclear_(void** v);
 char* vtostr_(void** v);
 // void _alloc(struct vecdata_** data, u8 size);
-void remove_(void* v, u32 size, u32 pos);
-void* push_(void** v, u32 size);
+void remove_(void* v, uint32_t size, uint32_t pos);
+void* push_(void** v, uint32_t size);
 void pushs_(void** v, char* str);
 void pushsf_(void** v, char* fmt, ...);
-void pushn_(void** v, u32 n, u32 size, void* thing);
-void* unshift_(void** v, u32 size);
-void* pop_(void* v, u32 size);
+void pushn_(void** v, uint32_t n, uint32_t size, void* thing);
+void* unshift_(void** v, uint32_t size);
+void* pop_(void* v, uint32_t size);
 
 #endif

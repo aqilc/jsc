@@ -65,7 +65,7 @@ char* format(char* str, ...) {
   va_end(args);
   va_end(debug);
 
-  // Keeps track of a string array with it's length, which we free later.
+  // Keeps track of a string array with its length, which we free later.
   if(strings == NULL) strings = malloc(sizeof(char*));
   else strings = realloc(strings, sizeof(char*) * (stringslen + 1));
   strings[stringslen] = arr;
