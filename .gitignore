@@ -1,5 +1,6 @@
 .cache
 .obsidian
+.vscode
 bin
 *.o
 *.obj
