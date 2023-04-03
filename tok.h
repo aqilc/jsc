@@ -1,3 +1,5 @@
+#include <stdbool.h>
+#include "helpers.h"
 #include "util/vec.h"
 #include "util/hash.h"
 
@@ -45,9 +47,9 @@ struct Token {
 struct Tokens {
 	struct Token* toks;
 	
-	hashtable* vars;
-	hashtable* funcs;
-	hashtable* structs;
+	ht(char*, bool) vars;
+	ht(char*, bool) funcs;
+	ht(char*, bool) structs;
 };
 
 struct Tokens* tokenize(char* str);

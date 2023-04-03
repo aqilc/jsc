@@ -1,9 +1,10 @@
 # https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc/
 
-UTIL := vec.o hash.o hashfunc.o errors.o
+UTIL := vec.o hash.o hashfunc.o
 TESTSUITE := tests.h tests_end.h
 CC := gcc
-CFLAGS := -g
+TCFLAGS := -g
+CFLAGS := -g -Wall -Wextra -Wpedantic
 
 
 # if ($(OS),Windows_NT)
@@ -18,38 +19,52 @@ CFLAGS := -g
 
 
 
-all: tok vec code
+all: tok vec code hash
 
 clean:
 	del *.o
 	del *.exe
 
 code: codetest.exe
+	@echo Running '$^'
 	@codetest.exe
+	@echo.
 tok: toktest.exe
+	@echo Running '$^'
 	@toktest.exe
+	@echo.
 vec: vectest.exe
+	@echo Running '$^'
 	@vectest.exe
+	@echo.
+hash: hashtest.exe
+	@echo Running '$^'
+	@hashtest.exe
+	@echo.
 
-.PHONY: tok vec clean
+.PHONY: tok vec hash code clean
 
 
 
 # ============== Test bins ==============
-codetest.exe: codetest.o vec.o tok.o codegen.o $(UTIL)
+codetest.exe: codetest.o tok.o codegen.o errors.o $(UTIL)
+	@$(CC) $^ -o $@
+hashtest.exe: hashtest.o hash.o hashfunc.o $(UTIL)
 	@$(CC) $^ -o $@
 vectest.exe: vectest.o vec.o $(UTIL)
 	@$(CC) $^ -o $@
-toktest.exe: toktest.o tok.o $(UTIL)
+toktest.exe: toktest.o tok.o errors.o $(UTIL)
 	@$(CC) $^ -o $@
 
 # ============= Test Builds =============
 codetest.o: codetest.c $(TESTSUITE)
-	$(CC) $(CFLAGS) -c codetest.c -o codetest.o
+	$(CC) $(TCFLAGS) -c codetest.c -o codetest.o
 toktest.o: toktest.c $(TESTSUITE)
-	$(CC) $(CFLAGS) -c toktest.c -o toktest.o
+	$(CC) $(TCFLAGS) -c toktest.c -o toktest.o
 vectest.o: vectest.c $(TESTSUITE)
-	$(CC) $(CFLAGS) -c vectest.c -o vectest.o
+	$(CC) $(TCFLAGS) -c vectest.c -o vectest.o
+hashtest.o: hashtest.c ../../util/hash.h $(TESTSUITE)
+	$(CC) $(TCFLAGS) -c hashtest.c -o hashtest.o
 
 # ----------- Base lib builds -----------
 vec.o: ../../util/vec.c

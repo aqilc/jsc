@@ -16,30 +16,28 @@ static inline i32 expect(char* s, u32 idx, char* e);
 static inline void parse(struct Tokens* toks, char* str);
 static inline u32 findeos(char* s, u32 idx);
 
-hashtable* keywords = NULL;
+ht(char*, enum TokenType) keywords;
 
 void init_keywords() {
-	keywords = ht(242);
-	hti(keywords, "let", new_i(DECL));
-	hti(keywords, "fn", new_i(DECL));
-	hti(keywords, "struct", new_i(DECL));
-	hti(keywords, "if", new_i(IF));
-	hti(keywords, "else", new_i(ELSE));
+	hsets(keywords, "let")    = DECL;
+	hsets(keywords, "fn")     = DECL;
+	hsets(keywords, "struct") = DECL;
+	hsets(keywords, "if")     = IF;
+	hsets(keywords, "else")   = ELSE;
 }
 
 struct Tokens* tokenize(char* str) {
 
 	// Initializes the keyword dict
-	if(!keywords) init_keywords();
+	if(!hgets(keywords, "if")) init_keywords();
 
 	struct Tokens* toks = malloc(sizeof(struct Tokens));
 	toks->toks = vnew();
-	toks->vars = ht(200);
-	toks->funcs = ht(200);
-	toks->structs = ht(200);
+
+	// Initializes the hash tables, kinda dangerous but it should always work
+	memset(&toks->vars, 0, sizeof(toks->vars) * 3);
 
 	parse(toks, str);
-	
 	return toks;
 }
 
@@ -47,12 +45,10 @@ struct Tokens* tokenize(char* str) {
 // Uses existing tokenizer object to tokenize, saves time, space, money and funccalls
 void retokenize(struct Tokens* toks, char* str) {
 	vclear(toks->toks);
-	
-	void* item;
-	while((item = htdfast(toks->vars))) free(item);
-	while((item = htdfast(toks->funcs))) free(item);
-	while((item = htdfast(toks->structs))) free(item);
-	htreset(toks->vars); htreset(toks->funcs); htreset(toks->structs);
+
+	hreset(toks->vars);
+	hreset(toks->funcs);
+	hreset(toks->structs);
 	
 	if(*str)
 		parse(toks, str);
@@ -61,11 +57,9 @@ void retokenize(struct Tokens* toks, char* str) {
 // Frees tokenizer output
 void tokfree(struct Tokens* t) {
 	vfree(t->toks);
-	void* item;
-	while((item = htdfast(t->vars))) free(item);
-	while((item = htdfast(t->funcs))) free(item);
-	while((item = htdfast(t->structs))) free(item);
-	htfree(t->vars); htfree(t->funcs); htfree(t->structs);
+	hfree(t->vars);
+	hfree(t->funcs);
+	hfree(t->structs);
 	free(t);
 }
 
@@ -77,7 +71,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 	struct Token* t = toks->toks;
 
 	// Makes it easy to push tokens
-	#define tok(x, l, ...) push(t, { .loc = idx, .type = x, .len = l, __VA_ARGS__ }), idx += l//,\
+	#define tok(x, l, ...) push(t, { .loc = idx, .type = x, .len = l, __VA_ARGS__ }), idx += l/*,*/\
 		// printf("\nPushed token '"#x"' with length %d at idx %d on line %d", l, idx - l, __LINE__)
 	#define last t[vlen(t) - 1]
 	#define throw(...) { error_at(str, idx, __VA_ARGS__); goto error; }
@@ -124,7 +118,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 		if(isalpha(str[idx])) {
 			vstr sym = symb(str, idx);
 			push(sym, 0);
-			enum TokenType* token = htg(keywords, sym);
+			enum TokenType* token = hgets(keywords, sym);
 			if(token) {
 				switch(*token) {
 					case DECL:
