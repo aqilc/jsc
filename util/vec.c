@@ -17,15 +17,15 @@ void* vnew() { return (struct vecdata_*)calloc(1, sizeof(struct vecdata_)) + 1; 
 // Combines two vectors into a new vector (USE THIS FOR STRING VECS INSTEAD OF _PUSHS PLS I BEG)
 void* vcat(void* a, void* b) {
 	void* v = vnew();
-	push_(&v, vlen(b) + vlen(a));
+	push_(&v, ((struct vecdata_*) b)->used + ((struct vecdata_*) a)->used);
 	memcpy(v, a, _DATA(a)->used);
 	memcpy(v + _DATA(a)->used, b, _DATA(b)->used);
 	return v;
 }
 
 char vcmp(void* a, void* b) {
-	uint32_t len = vlen(a);
-	if(len != vlen(b)) return 1;
+	uint32_t len = ((struct vecdata_*) a)->used;
+	if(len != ((struct vecdata_*) b)->used) return 1;
 	uint32_t idx = 0;
 	while (idx < len) if(((char*)a)[idx] != ((char*)b)[idx]) return 1; else idx ++;
 	return 0;
@@ -97,7 +97,7 @@ void* pop_(void* v, uint32_t size) { _DATA(v)->used -= size; return _DATA(v)->da
 
 // Adds an element at the start of the vector, ALSO CHANGES PTR
 void* unshift_(void** v, uint32_t size) {
-	memmove((*v = alloc_(_DATA(*v), size)) + size, *v, vlen(*v));
+	memmove((*v = alloc_(_DATA(*v), size)) + size, *v, ((struct vecdata_*) *v)->used);
 	return *v;
 }
 

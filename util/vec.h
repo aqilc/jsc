@@ -46,7 +46,7 @@ struct vecdata_ {
 // pushs(data, "hello"); expands to something like: memcpy((char*)(push_((void**) &data, strlen("hello"))), "hello", strlen("hello"));
 
 // The generic push macro, does not work :sob: pls find a way to make it work
-// #define push(x, ...) _Generic((x), char*: memcpy((char*)(push_((void**)&(x), strlen(__VA_ARGS__))), __VA_ARGS__, strlen(__VA_ARGS__)),\
+// #define push(x, ...) _Generic((x), char*: memcpy((char*)(push_((void**)&(x), strlen(__VA_ARGS__))), __VA_ARGS__, strlen(__VA_ARGS__)),/*\*/
 // 	default: (*(typeof(x))push_((void**)&(x), sizeof(*(x))) = (typeof(*x)) __VA_ARGS__))
 
 // The variadic push macro, still in the works
