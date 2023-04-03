@@ -2,7 +2,7 @@
 #include "tests.h"
 #include "../../util/vec.h"
 
-struct big { u64 i,j,k,l,m,n,o,p,q,r,s,t,w,x,y,z,a,b,c,d,e,f,g,h; };
+struct big { uint64_t i,j,k,l,m,n,o,p,q,r,s,t,w,x,y,z,a,b,c,d,e,f,g,h; };
 
 TEST("Vector free")
 	vfree(vnew());// just watch out for doublefree/segfault
@@ -64,9 +64,9 @@ TEST("Vector `push`")
 	vfree(n1);
 
 	substart("Pushn: `u32`");
-		u32* n2 = vnew();
+		uint32_t* n2 = vnew();
 		pushn(n2, 10, 9120192);
-		asserteq(_DATA(n2)->used, 10 * sizeof(u32));
+		asserteq(_DATA(n2)->used, 10 * sizeof(uint32_t));
 	subend(vlen(n2) == 10);
 	vfree(n2);
 	
@@ -107,7 +107,7 @@ TEST("Vector clear")
 	subtest("Clear again", vlen(v) == 0);
 
 	// substart("Stress test");
-	u8 halfway_reached = 0;
+	uint8_t halfway_reached = 0;
 	for(int i = 0; i < 10000; i += 80000000 / (i + 40000)) {
 		pushn(v, i,);
 		assert(vlen(v) == i);
