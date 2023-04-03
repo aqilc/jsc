@@ -14,6 +14,14 @@ double totaltime;
 int subtests_run = 0;
 int subtests_passed = 0;
 int asserts = 0;
+int testoutputwidth = 70;
+
+void init() __attribute__((weak)); 
+#define INIT() void init()
+
+
+
+
 
 // Terminal colors defines
 #define TERMGREENBGBLACK "\033[42;30m"
@@ -24,22 +32,31 @@ int asserts = 0;
 #define TERMBLUEBOLD "\033[1;34m"
 #define TERMBLUEBG "\033[44;30m"
 #define TERMYELLOW "\033[33m"
+#define TERMGRAY "\033[90m"
+#define TERMPINK "\033[95m"
 #define TERMRESET "\033[0m"
 
-#define TESTNAMELIMITSTR "60"
-#define TESTNAMELIMIT 60
 
+// used to be 70
+#define TESTNAMELIMIT testoutputwidth
+
+
+
+
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 
 // https://stackoverflow.com/a/2349941/10013227
 #ifdef WIN32
 #include <profileapi.h>
+
 double get_time() {
 	LARGE_INTEGER t, f;
 	QueryPerformanceCounter(&t);
 	QueryPerformanceFrequency(&f);
 	return (double)t.QuadPart/(double)f.QuadPart;
 }
-
 #else
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -60,12 +77,14 @@ double get_time() {
 #define assert(x) do { if(x) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
 #define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (x), (y)); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
 
+
+
 #define SUBTESTPASSOUTPUT(x) {\
 		totaltime += ANUDSNEADHUNSEADHUNDE;\
 		double tmul = 1000.0;\
 		char* timeunit = "ms";\
 		if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\u03BCs";\
-		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"", asserts * 2,\
+		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASS "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"", asserts * 2,\
 			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 4,\
 			"\u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 ",\
 			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
@@ -73,7 +92,7 @@ double get_time() {
 	}
 
 #define SUBTESTINIT(x) subtests_run++;\
-	printf("\n"SUBTESTINDENT TERMYELLOW"%d)"TERMRESET" %-*s", subtests_run, TESTNAMELIMIT - strlen(SUBTESTINDENT), "'"x"'")
+	printf("\n" SUBTESTINDENT x " %-*s" TERMRESET, /*subtests_run,*/ TESTNAMELIMIT - sizeof(SUBTESTINDENT) + 1 - sizeof(""x"") + 1, "")
 
 // A sub test, which checks if something is going according to plan but if it's not, it can still continue
 #define subtest(x, y) do {\
@@ -106,7 +125,7 @@ double get_time() {
 #define TEST_(name, N) \
 TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	asserts = 0;\
-	printf(TERMYELLOW"%d)"TERMRESET" %-"TESTNAMELIMITSTR"."TESTNAMELIMITSTR"s", N + 1, "'"name"'");\
+	printf(TERMPINK"%d)" TERMRESET " '" name "' " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, TESTNAMELIMIT - sizeof("'"name"' (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3, "");\
 	starttime = get_time();\
 	TESTINIT
 #define TEST(name) TEST_(name, __COUNTER__)
@@ -118,7 +137,7 @@ TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	char* timeunit = "ms";\
 	if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\u03BCs";\
 	if(!subtests_run)\
-		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASSED "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"\n", asserts * 2,\
+		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASS "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"\n", asserts * 2,\
 			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 4,\
 			"\u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 ",\
 			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);/* If this was a straight test with no subtests, just print out test passed message*/\

@@ -38,6 +38,8 @@ int main() {
 	#endif
 
 
+	if(init) init();
+
 	// Generates the array of funcs that are the tests in the file
 	TESTFUNCRET (*testfuncs[])TESTFUNCARGS = { TESTFUNGEN() };
 
@@ -76,9 +78,9 @@ int main() {
 			failed ++;
 		}
 	}
-	if(!failed) printf("ALL TESTS PASSED!! Nice job bro.");
-	else if(failed == tests) printf("All tests failed. Spectacular.");
+	if(!failed) printf(TERMGREENBOLD "ALL TESTS PASSED!!" TERMRESET" Nice job bro.");
+	else if(failed == tests) printf(TERMREDBOLD "All tests failed. Spectacular." TERMRESET);
 	else printf("%d / %d tests passed.", tests - failed, tests);
-	printf(" Took "TERMBLUEBOLD"%.2f ms"TERMRESET"\n", totaltime * 1000.0);
+	printf(" Took " TERMBLUEBOLD "%.2f ms" TERMRESET "\n", totaltime * 1000.0);
 	return 0;
 }
