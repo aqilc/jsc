@@ -5,3 +5,4 @@ bin
 *.o
 *.obj
 test/**/*.exe
+.pdb
