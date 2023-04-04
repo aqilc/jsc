@@ -16,8 +16,16 @@ int subtests_passed = 0;
 int asserts = 0;
 int testoutputwidth = 70;
 
-void init() __attribute__((weak)); 
-#define INIT() void init()
+
+// https://stackoverflow.com/a/53388334/10013227
+#ifdef _MSC_VER
+void init__(void) {}
+void init(void);
+#pragma comment(linker, "/alternatename:init=init__")
+#else
+void init(void) __attribute__((weak)); 
+#endif
+#define INIT() void init(void)
 
 
 
@@ -48,8 +56,9 @@ void init() __attribute__((weak));
 #define TOSTRING(x) STRINGIFY(x)
 
 // https://stackoverflow.com/a/2349941/10013227
-#ifdef WIN32
-#include <profileapi.h>
+#ifdef _WIN32
+// #include <profileapi.h>
+#include <windows.h>
 
 double get_time() {
 	LARGE_INTEGER t, f;

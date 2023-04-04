@@ -6,8 +6,8 @@ unsigned int sigthing = 0;
 
 #if defined(_WIN32)
 // WINDOWS WHY ARE YOUR HEADERS SO BIG
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+// #define WIN32_LEAN_AND_MEAN
+// #include <windows.h>
 LONG WINAPI plswork(PEXCEPTION_POINTERS pinfo) {
 	sigthing = pinfo->ExceptionRecord->ExceptionCode;
 	longjmp(owo, 1);
@@ -27,7 +27,7 @@ int main() {
 	// https://stackoverflow.com/questions/1992816/how-to-handle-seg-faults-under-windows
 	SetUnhandledExceptionFilter(plswork);
 
-	// f*ck linux bruh
+	// linux = bruh
 	#else
 	// https://stackoverflow.com/questions/10202941/segmentation-fault-handling
 	struct sigaction sa = {0};

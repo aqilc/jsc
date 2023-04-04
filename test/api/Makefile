@@ -1,10 +1,33 @@
 # https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc/
 
-UTIL := vec.o hash.o hashfunc.o
+
+MSVC := 1
+
+ifeq ($(MSVC), 1)
+	# MSVC
+	CC := cl
+	CFLAGS := /std:c11 /EHsc /MDd /Zi /D_CRT_SECURE_NO_WARNINGS
+	TCFLAGS := /std:c11 /EHsc /MDd /Zi /D_CRT_SECURE_NO_WARNINGS
+	OBJEND := .obj
+	OUTPUTFILENAME := /Fo
+	EXENAME := /Fe
+	COMPILEFLAG := /c
+	LINK := /link /debug
+else
+	# GCC
+	CC := gcc
+	CFLAGS := -g -Wall -Wextra -Wpedantic
+	TCFLAGS := -g
+	OBJEND := .o
+	OUTPUTFILENAME := -o
+	EXENAME := -o
+	COMPILEFLAG := -c
+	LINK := 
+endif
+
+
+UTIL := vec$(OBJEND) hash$(OBJEND) hashfunc$(OBJEND)
 TESTSUITE := tests.h tests_end.h
-CC := gcc
-TCFLAGS := -g
-CFLAGS := -g -Wall -Wextra -Wpedantic
 
 
 # if ($(OS),Windows_NT)
@@ -23,6 +46,7 @@ all: tok vec code hash
 
 clean:
 	del *.o
+	del *.obj
 	del *.exe
 
 code: codetest.exe
@@ -47,39 +71,39 @@ hash: hashtest.exe
 
 
 # ============== Test bins ==============
-codetest.exe: codetest.o tok.o codegen.o errors.o $(UTIL)
-	@$(CC) $^ -o $@
-hashtest.exe: hashtest.o hash.o hashfunc.o $(UTIL)
-	@$(CC) $^ -o $@
-vectest.exe: vectest.o vec.o $(UTIL)
-	@$(CC) $^ -o $@
-toktest.exe: toktest.o tok.o errors.o $(UTIL)
-	@$(CC) $^ -o $@
+codetest.exe: codetest$(OBJEND) tok$(OBJEND) codegen$(OBJEND) errors$(OBJEND) $(UTIL)
+	@$(CC) $^ $(EXENAME)$@
+hashtest.exe: hashtest$(OBJEND) hash$(OBJEND) hashfunc$(OBJEND) $(UTIL)
+	@$(CC) $^ $(EXENAME)$@
+vectest.exe: vectest$(OBJEND) vec$(OBJEND) $(UTIL)
+	@$(CC) $^ $(EXENAME)$@
+toktest.exe: toktest$(OBJEND) tok$(OBJEND) errors$(OBJEND) $(UTIL)
+	@$(CC) $^ $(EXENAME)$@
 
 # ============= Test Builds =============
-codetest.o: codetest.c $(TESTSUITE)
-	$(CC) $(TCFLAGS) -c codetest.c -o codetest.o
-toktest.o: toktest.c $(TESTSUITE)
-	$(CC) $(TCFLAGS) -c toktest.c -o toktest.o
-vectest.o: vectest.c $(TESTSUITE)
-	$(CC) $(TCFLAGS) -c vectest.c -o vectest.o
-hashtest.o: hashtest.c ../../util/hash.h $(TESTSUITE)
-	$(CC) $(TCFLAGS) -c hashtest.c -o hashtest.o
+codetest$(OBJEND): codetest.c $(TESTSUITE)
+	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+toktest$(OBJEND): toktest.c $(TESTSUITE)
+	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+vectest$(OBJEND): vectest.c $(TESTSUITE)
+	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+hashtest$(OBJEND): hashtest.c ../../util/hash.h $(TESTSUITE)
+	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 
 # ----------- Base lib builds -----------
-vec.o: ../../util/vec.c
-	$(CC) $(CFLAGS) -c ../../util/vec.c -o vec.o
-hash.o: ../../util/hash.c
-	$(CC) $(CFLAGS) -c ../../util/hash.c -o hash.o
-hashfunc.o: ../../util/hashfunc.c
-	$(CC) $(CFLAGS) -c ../../util/hashfunc.c -o hashfunc.o
+vec$(OBJEND): ../../util/vec.c
+	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+hash$(OBJEND): ../../util/hash.c
+	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+hashfunc$(OBJEND): ../../util/hashfunc.c
+	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 
-codegen.o: ../../codegen.c
-	$(CC) $(CFLAGS) -c ../../codegen.c -o codegen.o
-tok.o: ../../tok.c
-	$(CC) $(CFLAGS) -c ../../tok.c -o tok.o
-errors.o: ../../errors.c
-	$(CC) $(CFLAGS) -c ../../errors.c -o errors.o
-# backend_load.o: ../../backend_load.c
-# 	$(CC) $(CFLAGS) -c ../../backend_load.c -o backend_load.o
+codegen$(OBJEND): ../../codegen.c
+	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+tok$(OBJEND): ../../tok.c
+	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+errors$(OBJEND): ../../errors.c
+	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+# backend_load$(OBJEND): ../../backend_load.c
+# 	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 

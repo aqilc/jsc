@@ -15,9 +15,6 @@ struct GENERIC_TABLE_ {
   struct GENERIC_ITEM_* items;
 };
 
-// String used in the keys of the hash table.
-typedef struct hashstr { int s; char str[]; } hashstr;
-
 #define HASH_STRIFY2(x) #x
 #define HASH_STRIFY(x) HASH_STRIFY2(x)
 
