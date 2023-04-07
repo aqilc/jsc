@@ -57,7 +57,7 @@ void error_at(char* str, u32 place, char* fmt, ...) {
 	fprintf(stderr, "\n");
 
 	// Prints out the line
-	fprintf(stderr, "%d | %.*s\n", linenum, start - end - 1, start);
+	fprintf(stderr, "%d | %.*s\n", linenum, (u32) (start - end - 1), start);
 
 	// Prints out the spaces and then the ^
 	fprintf(stderr, "%*s|%*s\\033[31;1m^\\033[0m\n", linenumlen + 1, "", place - linenumlen - 2, "");

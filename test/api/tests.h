@@ -101,7 +101,7 @@ double get_time() {
 	}
 
 #define SUBTESTINIT(x) subtests_run++;\
-	printf("\n" SUBTESTINDENT x " %-*s" TERMRESET, /*subtests_run,*/ TESTNAMELIMIT - sizeof(SUBTESTINDENT) + 1 - sizeof(""x"") + 1, "")
+	printf("\n" SUBTESTINDENT x " %-*s" TERMRESET, /*subtests_run,*/(int) (TESTNAMELIMIT - sizeof(SUBTESTINDENT) + 1 - sizeof(""x"") + 1), "")
 
 // A sub test, which checks if something is going according to plan but if it's not, it can still continue
 #define subtest(x, y) do {\
@@ -134,7 +134,7 @@ double get_time() {
 #define TEST_(name, N) \
 TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	asserts = 0;\
-	printf(TERMPINK"%d)" TERMRESET " '" name "' " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, TESTNAMELIMIT - sizeof("'"name"' (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3, "");\
+	printf(TERMPINK "%d)" TERMRESET " '" name "' " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, (int) (TESTNAMELIMIT - sizeof("'"name"' (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3), "");\
 	starttime = get_time();\
 	TESTINIT
 #define TEST(name) TEST_(name, __COUNTER__)
