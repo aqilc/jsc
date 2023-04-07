@@ -31,7 +31,7 @@ endif
 
 
 
-all: tok vec
+all: vec hash tok code
 
 clean:
 	rm *.o
@@ -57,7 +57,7 @@ toktest.bin: toktest.o tok.o $(UTIL)
 	@$(CC) $^ -o $@ $(CLINK)
 hashtest.bin: hashtest.o $(UTIL)
 	@$(CC) $^ -o $@ $(CLINK)
-codetest.bin: codetest.o codegen.o $(UTIL)
+codetest.bin: codetest.o tok.o codegen.o $(UTIL)
 	@$(CC) $^ -o $@ $(CLINK)
 
 # ============= Test Builds =============
