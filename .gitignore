@@ -4,6 +4,6 @@
 bin
 *.o
 *.obj
+*.bin
 test/**/*.exe
 .pdb
-.bin
