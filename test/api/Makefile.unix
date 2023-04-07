@@ -1,8 +1,23 @@
 UTIL := vec.o hash.o hashfunc.o errors.o
 TESTSUITE := tests.h tests_end.h
 CC := gcc
-CFLAGS := -g
+CFLAGS := 
+TFLAGS := 
+CLINK :=
 
+ifeq (${SAN},1)
+	CFLAGS += -fsanitize=address
+	TFLAGS += -fsanitize=address
+	CLINK += -fsanitize=address
+endif
+
+ifeq (${OPT}, 1)
+	CFLAGS += -O3
+	TFLAGS += -O3
+else
+	CFLAGS += -g -Wall -Wextra -Wpedantic
+	TFLAGS += -g
+endif
 
 # if ($(OS),Windows_NT)
 # 	define _del
@@ -20,13 +35,16 @@ all: tok vec
 
 clean:
 	rm *.o
-	rm *.exe
 	rm *.bin
 
 tok: toktest.bin
 	@./toktest.bin
 vec: vectest.bin
 	@./vectest.bin
+hash: hashtest.bin
+	@./hashtest.bin
+code: codetest.bin
+	@./codetest.bin
 
 .PHONY: tok vec clean
 
@@ -34,15 +52,23 @@ vec: vectest.bin
 
 # ============== Test bins ==============
 vectest.bin: vectest.o vec.o $(UTIL)
-	@$(CC) $^ -o $@
+	@$(CC) $^ -o $@ $(CLINK)
 toktest.bin: toktest.o tok.o $(UTIL)
-	@$(CC) $^ -o $@
+	@$(CC) $^ -o $@ $(CLINK)
+hashtest.bin: hashtest.o $(UTIL)
+	@$(CC) $^ -o $@ $(CLINK)
+codetest.bin: codetest.o codegen.o $(UTIL)
+	@$(CC) $^ -o $@ $(CLINK)
 
 # ============= Test Builds =============
 toktest.o: toktest.c $(TESTSUITE)
-	$(CC) $(CFLAGS) -c toktest.c -o toktest.o
+	$(CC) $(TFLAGS) -c toktest.c -o toktest.o
 vectest.o: vectest.c $(TESTSUITE)
-	$(CC) $(CFLAGS) -c vectest.c -o vectest.o
+	$(CC) $(TFLAGS) -c vectest.c -o vectest.o
+hashtest.o: hashtest.c $(TESTSUITE)
+	$(CC) $(TFLAGS) -c hashtest.c -o hashtest.o
+codetest.o: codetest.c $(TESTSUITE)
+	$(CC) $(TFLAGS) -c codetest.c -o codetest.o
 
 # ----------- Base lib builds -----------
 vec.o: ../../util/vec.c
@@ -52,6 +78,8 @@ hash.o: ../../util/hash.c
 hashfunc.o: ../../util/hashfunc.c
 	$(CC) $(CFLAGS) -c ../../util/hashfunc.c -o hashfunc.o
 
+codegen.o: ../../codegen.c
+	$(CC) $(CFLAGS) -c ../../codegen.c -o codegen.o
 tok.o: ../../tok.c
 	$(CC) $(CFLAGS) -c ../../tok.c -o tok.o
 errors.o: ../../errors.c
