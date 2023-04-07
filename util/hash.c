@@ -54,83 +54,51 @@ void htinit(struct GENERIC_TABLE_* t, uint size) {
   for(int i = 0; i < t->n; i++) {\
     __VA_ARGS__\
     uint h = hash(*t->keys[i], ksize);\
-    uint oldind = h % t->size;\
     uint newind = h % size;\
 \
-    struct GENERIC_ITEM_* item;\
-    struct GENERIC_ITEM_* last = NULL;\
-    while(item != NULL)\
-      if (memcmp(item->k, t->keys[i], ksize) == 0) {\
-        if (last == NULL) t->items[oldind] = *(item->next);\
-        else last->next = item->next;\
-        break;\
-      } else {\
-        last = item;\
-        item = item->next;\
-      }\
+    struct GENERIC_ITEM_* item = (struct GENERIC_ITEM_*)t->keys[i];\
+    struct GENERIC_ITEM_* newitem = new + newind;\
 \
-    if (item == NULL) continue;\
-    memcpy(new + newind, item, sizeof(struct GENERIC_ITEM_));\
+    /* If it's a top level item, we would have to copy it over or allocate it \separately */\
+    if (item >= t->items && item < t->items + t->size) {\
+      if (newitem->k) {\
+        while(newitem->next) newitem = newitem->next;\
+        newitem->next = malloc(sizeof(struct GENERIC_ITEM_));\
+        newitem = newitem->next;\
+      }\
+      newitem->k = item->k;\
+      newitem->v = item->v;\
+      newitem->next = NULL;\
+      t->keys[i] = &newitem->k;\
+      continue;\
+    }\
+\
+    /* If it's not top level, it's separately allocated, so we need to free it in the instance we're setting to top level, or just set the item -> next to the new item */\
+    if (newitem->k) {\
+      while(newitem->next) newitem = newitem->next;\
+      newitem = newitem->next = item;\
+      newitem->next = NULL;\
+    }\
+    else {\
+      newitem->k = item->k;\
+      newitem->v = item->v;\
+      /* newitem->next = NULL; // Already NULL*/\
+      free(item);\
+    }\
+    t->keys[i] = &newitem->k;\
   }\
 \
   free(t->items);\
   t->items = new;\
   t->size = size;\
   return true;\
-}
+}\
 
 bool htresize(struct GENERIC_TABLE_* t, uint size, uint ksize) RESIZE()
-bool htsresize(struct GENERIC_TABLE_* t, uint size)
-// RESIZE(
-//   uint ksize = strlen(*t->keys[i]);
-//)
+bool htsresize(struct GENERIC_TABLE_* t, uint size) RESIZE(
+  uint ksize = strlen(*t->keys[i]);
+)
 
-{
-  if(!t->size) { htinit(t, size); return true; }
-  struct GENERIC_ITEM_* new = calloc(sizeof(struct GENERIC_ITEM_), size);
-
-  for(int i = 0; i < t->n; i++) {
-    uint ksize = strlen(*t->keys[i]);
-    uint h = hash(*t->keys[i], ksize);
-    uint newind = h % size;
-
-    struct GENERIC_ITEM_* item = (struct GENERIC_ITEM_*)t->keys[i];
-    struct GENERIC_ITEM_* newitem = new + newind;
-
-    /* If it's a top level item, we would have to copy it over or allocate it separately */
-    if (item >= t->items && item < t->items + t->size) {
-      if (newitem->k) {
-        while(newitem->next) newitem = newitem->next;
-        newitem->next = malloc(sizeof(struct GENERIC_ITEM_));
-        newitem = newitem->next;
-      }
-      newitem->k = item->k;
-      newitem->v = item->v;
-      newitem->next = NULL;
-      t->keys[i] = &newitem->k;
-      continue;
-    }
-
-    /* If it's not top level, it's separately allocated, so we need to free it in the instance we're setting to top level, or just set the item -> next to the new item */
-    if (newitem->k) {
-      while(newitem->next) newitem = newitem->next;
-      newitem = newitem->next = item;
-      newitem->next = NULL;
-    }
-    else {
-      newitem->k = item->k;
-      newitem->v = item->v;
-      // newitem->next = NULL; // Already NULL
-      free(item);
-    }
-    t->keys[i] = &newitem->k;
-  }
-
-  free(t->items);
-  t->items = new;
-  t->size = size;
-  return true;
-}
 
 
 

@@ -84,7 +84,7 @@ double get_time() {
 
 // Custom assert, requires something to be true to continue with the test.
 #define assert(x) do { if(x) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
-#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (x), (y)); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
+#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (int) (x), (int) (y)); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
 
 
 
