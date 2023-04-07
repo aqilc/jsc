@@ -30,6 +30,7 @@ TEST("Initializing")
   assert(h.n == 0);
   assert(h.size == 20);
   assert(h.items != NULL);
+  hfree(h);
 TEND()
 
 TEST("Integer Keys")
@@ -39,6 +40,7 @@ TEST("Integer Keys")
   hset(h, {1}) = 2;
   assert(1);
   subend(*hget(h, {1}) == 2);
+  hfree(h);
 TEND()
 
 TEST("String keys")
@@ -54,6 +56,7 @@ TEST("String keys")
     hsets(h, arr[i]) = i;
   assert(1);
   subend(1);
+  hfree(h);
 TEND()
 
 #include "tests_end.h"
