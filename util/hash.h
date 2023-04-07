@@ -37,15 +37,15 @@ struct GENERIC_TABLE_ {
   char*: htsresize((struct GENERIC_TABLE_*) &(htb), (htb).size * 3 / 2 + 10),\
   default: htresize((struct GENERIC_TABLE_*) &(htb), (htb).size * 3 / 2 + 10, sizeof(**(htb).keys)))
 
-#define hget(htb, ...)  (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys))
-#define hgets(htb, key) (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1)
+#define hget(htb, ...)  (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), false)
+#define hgets(htb, key) (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, true)
 
 
-#define hset(htb, ...) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), sizeof((htb).items->v))
-#define hsets(htb, key) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, sizeof((htb).items->v))
+#define hset(htb, ...) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), sizeof((htb).items->v), false)
+#define hsets(htb, key) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, sizeof((htb).items->v), true)
 
-#define hsetcpys(str, htb, ...) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), strlen(str)), str)
-#define htsetscpys(str, htb, key) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, strlen(str) + 1), str)
+#define hsetcpys(str, htb, ...) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), strlen(str), false), str)
+#define htsetscpys(str, htb, key) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, strlen(str) + 1, true), str)
 
 #define hfree(htb) htfree((struct GENERIC_TABLE_*) &(htb))
 #define hreset(htb) htreset((struct GENERIC_TABLE_*) &(htb))
@@ -60,9 +60,9 @@ bool  htsresize(struct GENERIC_TABLE_* t, unsigned int size);
 void  htfree(struct GENERIC_TABLE_* t);
 void  htreset(struct GENERIC_TABLE_* t);
 
-void* htget(struct GENERIC_TABLE_* t, void* k, unsigned int ksize);
+void* htget(struct GENERIC_TABLE_* t, void* k, unsigned int ksize, bool str);
 
-void* htset(struct GENERIC_TABLE_* t, void* k, unsigned int ksize, size_t vsize);
+void* htset(struct GENERIC_TABLE_* t, void* k, unsigned int ksize, size_t vsize, bool str);
 
 
 /*

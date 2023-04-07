@@ -98,7 +98,7 @@ bool htsresize(struct GENERIC_TABLE_* t, uint size)
     struct GENERIC_ITEM_* newitem = new + newind;
 
     /* If it's a top level item, we would have to copy it over or allocate it separately */
-    if (item > t->items && item < t->items + t->size) {
+    if (item >= t->items && item < t->items + t->size) {
       if (newitem->k) {
         while(newitem->next) newitem = newitem->next;
         newitem->next = malloc(sizeof(struct GENERIC_ITEM_));
@@ -110,7 +110,7 @@ bool htsresize(struct GENERIC_TABLE_* t, uint size)
       t->keys[i] = &newitem->k;
       continue;
     }
-    
+
     /* If it's not top level, it's separately allocated, so we need to free it in the instance we're setting to top level, or just set the item -> next to the new item */
     if (newitem->k) {
       while(newitem->next) newitem = newitem->next;
@@ -174,34 +174,48 @@ void htreset(struct GENERIC_TABLE_* t) {
 
 
 // Gets an arbitrary type key from hash table
-void* htget(struct GENERIC_TABLE_* t, void* k, uint ksize) {
+void* htget(struct GENERIC_TABLE_* t, void* k, uint ksize, bool str) {
   if(!t->size) return NULL; // If the table is empty, return NULL (no key found)
   int index = hash(k, ksize) % t->size;
   struct GENERIC_ITEM_* item = t->items + index;
   
   if(item->k != NULL) {
-    do {
-      if (memcmp(item->k, k, ksize) == 0)
-        return item->v;
-      else item = item->next;
-    } while (item != NULL);
+    if(str)
+      do {
+        if (strcmp(item->k, k) == 0)
+          return item->v;
+        else item = item->next;
+      } while (item != NULL);
+    else
+      do {
+        if (memcmp(item->k, k, ksize) == 0)
+          return item->v;
+        else item = item->next;
+      } while (item != NULL);
   }
 
   return NULL;
 }
 
 // Sets/inserts an arbitrary type key in the given hash table
-void* htset(struct GENERIC_TABLE_* t, void* k, uint ksize, size_t vsize) {
+void* htset(struct GENERIC_TABLE_* t, void* k, uint ksize, size_t vsize, bool str) {
   int index = hash(k, ksize) % t->size;
   struct GENERIC_ITEM_* item = t->items + index;
   struct GENERIC_ITEM_* last = NULL;
 
   if(item->k != NULL) {
-    do {
-      if (memcmp(item->k, k, ksize) == 0)
-        return item->v = realloc(item->v, vsize);
-      else item = item->next, last = item;
-    } while (item != NULL);
+    if(str)
+      do {
+        if (strcmp(item->k, k) == 0)
+          return item->v = realloc(item->v, vsize);
+        else item = item->next, last = item;
+      } while (item != NULL);
+    else
+      do {
+        if (memcmp(item->k, k, ksize) == 0)
+          return item->v = realloc(item->v, vsize);
+        else item = item->next, last = item;
+      } while (item != NULL);
   } else t->filledbuckets ++;
 
   if(!item) item = malloc(sizeof(struct GENERIC_ITEM_));
