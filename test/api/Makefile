@@ -1,13 +1,13 @@
 # https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc/
 
 
-MSVC := 1
+MSVC := ${MSVC}
 
 ifeq ($(MSVC), 1)
 	# MSVC
 	CC := cl
-	CFLAGS := /std:c11 /EHsc /MDd /Zi /D_CRT_SECURE_NO_WARNINGS
-	TCFLAGS := /std:c11 /EHsc /MDd /Zi /D_CRT_SECURE_NO_WARNINGS
+	CFLAGS := /std:c++17 /EHsc /MDd /Zi /D_CRT_SECURE_NO_WARNINGS
+	TCFLAGS := /std:c++17 /EHsc /MDd /Zi /D_CRT_SECURE_NO_WARNINGS
 	OBJEND := .obj
 	OUTPUTFILENAME := /Fo
 	EXENAME := /Fe
@@ -19,8 +19,8 @@ else
 	CFLAGS := -g -Wall -Wextra -Wpedantic
 	TCFLAGS := -g
 	OBJEND := .o
-	OUTPUTFILENAME := -o
-	EXENAME := -o
+	OUTPUTFILENAME := -o 
+	EXENAME := -o 
 	COMPILEFLAG := -c
 	LINK := 
 endif
@@ -47,24 +47,26 @@ all: tok vec code hash
 clean:
 	del *.o
 	del *.obj
+	del *.bin
 	del *.exe
+	del *.pdb
 
 code: codetest.exe
 	@echo Running '$^'
 	@codetest.exe
-	@echo.
+	@%systemroot%\system32\cmd.exe /C "echo."
 tok: toktest.exe
 	@echo Running '$^'
 	@toktest.exe
-	@echo.
+	@%systemroot%\system32\cmd.exe /C "echo."
 vec: vectest.exe
 	@echo Running '$^'
 	@vectest.exe
-	@echo.
+	@%systemroot%\system32\cmd.exe /C "echo."
 hash: hashtest.exe
 	@echo Running '$^'
 	@hashtest.exe
-	@echo.
+	@%systemroot%\system32\cmd.exe /C "echo."
 
 .PHONY: tok vec hash code clean
 
@@ -72,23 +74,23 @@ hash: hashtest.exe
 
 # ============== Test bins ==============
 codetest.exe: codetest$(OBJEND) tok$(OBJEND) codegen$(OBJEND) errors$(OBJEND) $(UTIL)
-	@$(CC) $^ $(EXENAME)$@
+	$(CC) $^ $(EXENAME)$@
 hashtest.exe: hashtest$(OBJEND) hash$(OBJEND) hashfunc$(OBJEND) $(UTIL)
-	@$(CC) $^ $(EXENAME)$@
+	$(CC) $^ $(EXENAME)$@
 vectest.exe: vectest$(OBJEND) vec$(OBJEND) $(UTIL)
-	@$(CC) $^ $(EXENAME)$@
+	$(CC) $^ $(EXENAME)$@
 toktest.exe: toktest$(OBJEND) tok$(OBJEND) errors$(OBJEND) $(UTIL)
-	@$(CC) $^ $(EXENAME)$@
+	$(CC) $^ $(EXENAME)$@
 
 # ============= Test Builds =============
 codetest$(OBJEND): codetest.c $(TESTSUITE)
-	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 toktest$(OBJEND): toktest.c $(TESTSUITE)
-	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 vectest$(OBJEND): vectest.c $(TESTSUITE)
-	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 hashtest$(OBJEND): hashtest.c ../../util/hash.h $(TESTSUITE)
-	@$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
+	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 
 # ----------- Base lib builds -----------
 vec$(OBJEND): ../../util/vec.c
