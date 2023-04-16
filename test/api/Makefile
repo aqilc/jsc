@@ -54,38 +54,38 @@ clean:
 code: codetest.exe
 	@echo Running '$^'
 	@codetest.exe
-	@%systemroot%\system32\cmd.exe /C "echo."
+	@C:\Windows\system32\cmd.exe /C "echo."
 tok: toktest.exe
 	@echo Running '$^'
 	@toktest.exe
-	@%systemroot%\system32\cmd.exe /C "echo."
+	@C:\Windows\system32\cmd.exe /C "echo."
 vec: vectest.exe
 	@echo Running '$^'
 	@vectest.exe
-	@%systemroot%\system32\cmd.exe /C "echo."
+	@C:\Windows\system32\cmd.exe /C "echo."
 hash: hashtest.exe
 	@echo Running '$^'
 	@hashtest.exe
-	@%systemroot%\system32\cmd.exe /C "echo."
+	@C:\Windows\system32\cmd.exe /C "echo."
 
-.PHONY: tok vec hash code clean
+.PHONY: all tok vec hash code clean
 
 
 
 # ============== Test bins ==============
 codetest.exe: codetest$(OBJEND) tok$(OBJEND) codegen$(OBJEND) errors$(OBJEND) $(UTIL)
-	$(CC) $^ $(EXENAME)$@
+	@$(CC) $^ $(EXENAME)$@
 hashtest.exe: hashtest$(OBJEND) hash$(OBJEND) hashfunc$(OBJEND) $(UTIL)
-	$(CC) $^ $(EXENAME)$@
+	@$(CC) $^ $(EXENAME)$@
 vectest.exe: vectest$(OBJEND) vec$(OBJEND) $(UTIL)
-	$(CC) $^ $(EXENAME)$@
-toktest.exe: toktest$(OBJEND) tok$(OBJEND) errors$(OBJEND) $(UTIL)
-	$(CC) $^ $(EXENAME)$@
+	@$(CC) $^ $(EXENAME)$@
+toktest.exe: toktest$(OBJEND) tok$(OBJEND) $(UTIL)
+	@$(CC) $^ $(EXENAME)$@
 
 # ============= Test Builds =============
 codetest$(OBJEND): codetest.c $(TESTSUITE)
 	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
-toktest$(OBJEND): toktest.c $(TESTSUITE)
+toktest$(OBJEND): toktest.c ../../tok.h $(TESTSUITE)
 	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 vectest$(OBJEND): vectest.c $(TESTSUITE)
 	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
@@ -93,9 +93,9 @@ hashtest$(OBJEND): hashtest.c ../../util/hash.h $(TESTSUITE)
 	$(CC) $(TCFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 
 # ----------- Base lib builds -----------
-vec$(OBJEND): ../../util/vec.c
+vec$(OBJEND): ../../util/vec.c ../../util/vec.h
 	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
-hash$(OBJEND): ../../util/hash.c
+hash$(OBJEND): ../../util/hash.c ../../util/hash.h
 	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
 hashfunc$(OBJEND): ../../util/hashfunc.c
 	$(CC) $(CFLAGS) $(OUTPUTFILENAME)$@ $(COMPILEFLAG) $<
