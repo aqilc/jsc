@@ -24,8 +24,8 @@ The current name is temporary; these are a few other names I thought of: Luca, M
 - Language Syntax:
 	- Only postfix, binary, and tertiary ops (F for unary, no +val or \&val)
 		- It's to fix things like `a ++++++ b` (`(a ++) + (++ b)`, is also hard to parse), still leaves `a +++ b` (`(a ++) + b`) possible but oh well
-	- `{}` can be exchanged for `: expr`
-		- If the block takes a return statement, like inside of a function (for things like `if`s) or in a function definition(`fn fname(): 3`), it is used as the return.
+	- `{}` can be exchanged for ` -> expr`
+		- If the block takes a return statement, like inside of a function (for things like `if`s) or in a function definition(`fn fname() => 3`), it is used as the return.
 	- `;`s are optional when making a single statement in a line.
 
 ## Stage 1 of JSC
@@ -38,25 +38,37 @@ let d = 'c'u16 // u16, but converted from char so treated the same lol
 let e = 'abcd' // Combines the utf8 values together into a number and puts it in to an int type for now. Complains if it's too big
 let f = "hi" // All strings allocated on the stack
 
-fn features() number {
+fn features(): number {
 	let a = 10
 	let b = 2
-	// In a function environment, omitting ; means returning the value except when you declare variables
-	if a < 9: panic();
-	for a:
-		b *= 2;
+	
+	if a < 9 -> panic()
+	else if a == 10 -> print("%d", b) // for the first stages, we're just going to use clib printf
+
+	// if statements are expressions, so you can do this, but you cannot close off individual branches with ; inside them
+	// Statement inside expressions are treated differently, as ; means you're ending the expression, which also cuts off the rest of the statement
+	while a ->
+		if b > 200 -> break
+		else b *= 2;
+	let c =
+		if a < 9 -> panic()
+		else if a < 10 -> 10
+		else 20;
+
+	// you can also kind of make some crazy looking statements, but it's still readable from left to right (imo)(until you get to the else's). obv, like all code, if you format and indent it properly, it's much better
+	for d in 0..20 -> if a % 2 == 0 -> a *= if a.to_string().len > 1 -> -2 else 1 else print("%d", a);
 	
 	if a + b < 100 {
 		// you can also have scopes or something lol
 		print("too big")
 		panic()
 	}
-	if comparison(a, b): b
+	if comparison(a, b) -> b
 	else a
 }
 // Generic function works for all numbers. Equivalent to fn comparison (a number, b number) 
-fn comparison(a, b): a > b
-fn typeandreturn() number: 4;
+fn comparison(a, b) -> a > b
+fn typeandreturn(): number -> 4;
 return features(); // return opcode for program
 
 /* Non features in Stage 1:
@@ -98,18 +110,18 @@ let obj = { bruh: "ez" };
 
 // defines a struct
 struct hello {
-	hi str; bruh str?; yes u32, no;// In multi var declarations(with ,), the type of the first member's type is assumed for succeeding vars
-	new(): hello { hi: "bruh" }
+	hi: str; bruh: str?; yes: u32, no;// In multi var declarations(with ,), the type of the first member's type is assumed for succeeding vars
+	new() -> hello { hi: "bruh" }
 }
 
 trait greeting { print(self) }
 impl greeting for hello {
-	print(self): print("hello " + )
+	print(self) -> print("hello " + )
 }
 
 hello.new().print() // 
 
-fn func(hi str): print(hi + " world")
+fn func(hi: str) -> print(hi + " world")
 func("hello ")
 
 /* Added features in Stage 2:
@@ -126,7 +138,7 @@ func("hello ")
 
 ```javascript
 // hello.jsc
-fn hello({ lol }): print(lol);
+fn hello({ lol }/* Implicit typing: Object { lol: any } */) -> print(lol);
 hello { lol: 30 }
 
 export hello;
