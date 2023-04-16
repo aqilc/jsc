@@ -35,10 +35,11 @@ void init(void) __attribute__((weak));
 #define TERMGREENBGBLACK "\033[42;30m"
 #define TERMWHITEBGBLACK "\033[47;30m"
 #define TERMREDBGBLACK "\033[41;30m"
+#define TERMBLUEBG "\033[44;30m"
 #define TERMGREENBOLD "\033[1;32m"
 #define TERMREDBOLD "\033[1;31m"
 #define TERMBLUEBOLD "\033[1;34m"
-#define TERMBLUEBG "\033[44;30m"
+#define TERMGRAYBOLD "\033[1;90m"
 #define TERMYELLOW "\033[33m"
 #define TERMGRAY "\033[90m"
 #define TERMPINK "\033[95m"
@@ -79,6 +80,29 @@ double get_time() {
 #endif
 
 
+// PURELY FOR DEBUGGING WITH GDB OR ANOTHER COMMAND LINE DEBUGGER
+#if defined(__linux__)
+// https://linux.die.net/man/3/malloc_usable_size
+#include <malloc.h>
+size_t msizeof(const void *p) {
+    return malloc_usable_size((void*)p);
+}
+#elif defined(__APPLE__)
+// https://www.unix.com/man-page/osx/3/malloc_size/
+#include <malloc/malloc.h>
+size_t msizeof(const void *p) {
+    return malloc_size(p);
+}
+#elif defined(_WIN32)
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/msize
+#include <malloc.h>
+size_t msizeof(const void *p) {
+    return _msize((void *)p);
+}
+#endif
+
+
+
 // ------------------------------------------------------------------- SUBTESTS -------------------------------------------------------------------
 #define SUBTESTINDENT "  "
 
@@ -93,11 +117,18 @@ double get_time() {
 		double tmul = 1000.0;\
 		char* timeunit = "ms";\
 		if(ANUDSNEADHUNSEADHUNDE < 1e-3) tmul = 1000000.0, timeunit = "\u03BCs";\
-		printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASS "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"", asserts * 2,\
-			"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", asserts * 4,\
-			"\u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 ",\
-			ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
-			subtests_passed++; asserts = 0; starttime = get_time(); break;\
+		if(asserts < 12)\
+			printf("%.*s"TERMGREENBOLD"%.*s"TERMRESET TERMGREENBGBLACK" PASS "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"",\
+				asserts * 2,\
+				"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b",\
+				asserts * 4,\
+				"\u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 \u2713 ",\
+				ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
+		else\
+			printf("%.*s\b\b\b\b" TERMYELLOW "%dx " TERMGREENBOLD "\u2713 "TERMRESET TERMGREENBGBLACK" PASS "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"",\
+			/*Length of the number in `assert`*/ asserts < 10 ? 1 : asserts < 100 ? 2 : asserts < 1000 ? 3 : asserts < 10000 ? 4 : asserts < 100000 ? 5 : asserts < 1000000 ? 6 : asserts < 10000000 ? 7 : asserts < 100000000 ? 8 : asserts < 1000000000 ? 9 : 10,\
+			"\b\b\b\b\b\b\b\b\b\b\b\b", asserts, ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
+		subtests_passed++; asserts = 0; starttime = get_time(); break;\
 	}
 
 #define SUBTESTINIT(x) subtests_run++;\
@@ -134,7 +165,7 @@ double get_time() {
 #define TEST_(name, N) \
 TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 	asserts = 0;\
-	printf(TERMPINK "%d)" TERMRESET " '" name "' " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, (int) (TESTNAMELIMIT - sizeof("'"name"' (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3), "");\
+	printf(TERMPINK "%d)" TERMRESET " " name " " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, (int) (TESTNAMELIMIT - sizeof(name " (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3), "");\
 	starttime = get_time();\
 	TESTINIT
 #define TEST(name) TEST_(name, __COUNTER__)
