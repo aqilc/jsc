@@ -5,6 +5,9 @@
 #include <string.h>
 #include "hashfunc.h"
 
+
+#pragma GCC diagnostic ignored "-Wunused-value"
+
 // Generic structs for sizing
 struct GENERIC_ITEM_ { void* k; void* v; struct GENERIC_ITEM_* next; };
 #define TABLEFIELDS int n; int size; int filledbuckets; int ksize;
@@ -32,19 +35,24 @@ struct GENERIC_TABLE_ {
 #define hkeyt(htb) typeof(**(htb).keys)
 #define hvalt(htb) typeof(*(htb).items->v)
 
-// Resize if there are too many conflicts (n - filledbuckets) or if there are too many filled buckets 
-#define mayberesize(htb) ((htb).n - (htb).filledbuckets * 3 / 2 >= (htb).filledbuckets || (htb).filledbuckets >= (htb).size * 3 / 4) && _Generic(**(htb).keys,\
+// Resize if there are too many conflicts (n - filledbuckets). Aim for 3/4 filled buckets.
+// What the current algorithm does, is when the number of filled buckets is less than 3/4s of the total items (conflicts exceeds 1/4), it resizes the table.
+#define shouldresize(htb) ((htb).n - (htb).filledbuckets * 4 / 3 >= (htb).filledbuckets)
+#define mayberesize(htb) shouldresize(htb) && _Generic(**(htb).keys,\
   char*: htsresize((struct GENERIC_TABLE_*) &(htb), (htb).size * 3 / 2 + 10),\
   default: htresize((struct GENERIC_TABLE_*) &(htb), (htb).size * 3 / 2 + 10, sizeof(**(htb).keys)))
 
-#define hget(htb, ...)  (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), false)
-#define hgets(htb, key) (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, true)
+#define hget(htb, ...)   (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), (hkeyt(htb)*) &__VA_ARGS__, sizeof(**(htb).keys), false)
+#define hgetst(htb, ...) (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), false)
+#define hgets(htb, key)  (hvalt(htb)*) htget((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, true)
 
 
-#define hset(htb, ...) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), sizeof((htb).items->v), false)
+#define hset(htb, ...) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), (hkeyt(htb)*) &__VA_ARGS__, sizeof(**(htb).keys), sizeof((htb).items->v), false)
+#define hsetst(htb, ...) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), sizeof((htb).items->v), false)
 #define hsets(htb, key) mayberesize(htb), *(hvalt(htb)*) htset((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, sizeof((htb).items->v), true)
 
-#define hsetcpys(str, htb, ...) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), strlen(str), false), str)
+#define hsetcpys(str, htb, ...) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), (hkeyt(htb)*) &__VA_ARGS__, sizeof(**(htb).keys), strlen(str), false), str)
+#define hsetstcpys(str, htb, ...) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), &(hkeyt(htb)) __VA_ARGS__, sizeof(**(htb).keys), strlen(str), false), str)
 #define htsetscpys(str, htb, key) mayberesize(htb), strcpy((char*) htset((struct GENERIC_TABLE_*) &(htb), key, strlen(key) + 1, strlen(str) + 1, true), str)
 
 #define hfree(htb) htfree((struct GENERIC_TABLE_*) &(htb))
