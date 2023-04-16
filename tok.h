@@ -9,8 +9,8 @@ enum TokenType {
 	STRING,
 	OP, // See enum below
 	ARG, // for functions, maybe generics
-	SCOPEB, // Start + end of scopes
-	SCOPEE,
+	ARGB, ARGE, ARGSEP, // Start + end + separator of args
+	SCOPEB, SCOPEE, // Start + end of scopes
 	IDENT, // val = string
 	DECL, // See enum below
 	RETURN,
@@ -34,10 +34,14 @@ struct Token {
 		} decl;
 		
 		enum {
-			ADD, SUB, MUL, DIV, SET,
-			ADDSET, SUBSET,
-			INCR, DECR,
-			GREATER, LESS, EQ, GREATEQ, LESSEQ,
+			// SPECIALLY SET, DO NOT CHANGE ORDER OF BASIC -> ASSIGNMENT VERSIONS OF NORMAL OPS
+			ADD, SUB, MUL, DIV, MOD, SET, // basic operations
+			ADDSET, SUBSET, MULSET, DIVSET, MODSET, // operations with assignment
+			SHIFTRIGHT, SHIFTLEFT, // bitshifts
+			XOR, AND, OR, // bitwise operations
+			POW, // power
+			INCR, DECR, // Increment and decrement
+			GREATER, LESS, EQ, GREATEQ, LESSEQ, NOTEQ, // Comparisons
 		} op;
 		
 		char* s; // For parsed strings

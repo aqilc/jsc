@@ -18,12 +18,19 @@ static inline u32 findeos(char* s, u32 idx);
 
 ht(char*, enum TokenType) keywords;
 
+// Defines every keyword
+struct { char* s; enum TokenType t; } keyword_defs[] = {
+	"let",    DECL,
+	"fn",     DECL,
+	"struct", DECL,
+	"if",     IF,
+	"else",   ELSE
+};
+
+
 void init_keywords() {
-	hsets(keywords, "let")    = DECL;
-	hsets(keywords, "fn")     = DECL;
-	hsets(keywords, "struct") = DECL;
-	hsets(keywords, "if")     = IF;
-	hsets(keywords, "else")   = ELSE;
+	for(u32 i = 0; i < sizeof(keyword_defs) / sizeof(keyword_defs[0]); i++)
+		hsets(keywords, keyword_defs[i].s) = keyword_defs[i].t;
 }
 
 struct Tokens* tokenize(char* str) {
@@ -73,7 +80,6 @@ static inline void parse(struct Tokens* toks, char* str) {
 	// Makes it easy to push tokens
 	#define tok(x, l, ...) push(t, { .loc = idx, .type = x, .len = l, __VA_ARGS__ }), idx += l/*,*/\
 		// printf("\nPushed token '"#x"' with length %d at idx %d on line %d", l, idx - l, __LINE__)
-	#define last t[vlen(t) - 1]
 	#define throw(...) { error_at(str, idx, __VA_ARGS__); goto error; }
 	#define SKIP skip(str, &idx)
 
@@ -94,7 +100,6 @@ static inline void parse(struct Tokens* toks, char* str) {
 				while(isdigit(str[idx]))
 					push(numstr, str[idx]), idx++;
 				len = vlen(numstr);
-				push(numstr, 0);
 			
 				num = atoi(numstr);
 			} else num = str[idx] - '0';
@@ -105,20 +110,24 @@ static inline void parse(struct Tokens* toks, char* str) {
 
 		// Operators
 		switch(str[idx]) {
-			case '=': tok(OP, 1, .val = { .op = SET }); continue;
-			case '+':
-				if(str[idx + 1] == '=') {
-					tok(OP, 2, .val = { .op = ADDSET });
-					continue;
-				}
-				tok(OP, 1, .val = { .op = ADD });
+			case '=':
+				if(t[vlen(t) - 1].type == OP && t[vlen(t) - 1].val.op < SET)
+					t[vlen(t) - 1].val.op += SET + 1, t[vlen(t) - 1].len ++, idx ++;
+				else tok(OP, 1, .val = { .op = SET });
 				continue;
+			case '+': tok(OP, 1, .val = { .op = ADD }); continue;
+			case '-': tok(OP, 1, .val = { .op = SUB }); continue;
+			case '*': tok(OP, 1, .val = { .op = MUL }); continue;
+			case '/': tok(OP, 1, .val = { .op = DIV }); continue;
+			case '%': tok(OP, 1, .val = { .op = MOD }); continue;
 		}
 
 		if(isalpha(str[idx])) {
 			vstr sym = symb(str, idx);
-			push(sym, 0);
+
+			// If it's a keyword, parse the statement
 			enum TokenType* token = hgets(keywords, sym);
+
 			if(token) {
 				switch(*token) {
 					case DECL:
@@ -133,46 +142,70 @@ static inline void parse(struct Tokens* toks, char* str) {
 							
 							vstr name = symb(str, idx);
 							tok(IDENT, vlen(name), .val = { .s = name });
+							vfree(name);
+
 							SKIP;
 							i32 paren = expect(str, idx, "(");
 							if(paren < 0) throw("Expected '(' after function name in function declaration.");
+							tok(ARGB, 1);
 
-							
+							while(isalpha(str[idx])) {
+								SKIP;
+								if(!isalpha(str[idx])) throw("Expected identifier after '%c' in function declaration.", str[idx - 1]);
+								vstr name = symb(str, idx);
+								tok(IDENT, vlen(name), .val = { .s = name });
+								
+								// For argument separators
+								SKIP;
+								if(str[idx] == ',') tok(ARGSEP, 1);
+								vfree(name);
+								SKIP;
+							}
+
+							i32 endparen = expect(str, idx, ")");
+							if(endparen < 0) throw("Expected ')' after function arguments in function declaration.");
+							tok(ARGE, 1);
+
+							vfree(sym);
 						} else if(sym[0] == 'l') {
 							tok(DECL, 3, .val = { .decl = LET });
 							SKIP;
 							if(!isalpha(str[idx]) && str[idx] != '_') throw("Expected identifier after variable declaration, instead got '%c'", str[idx]);
 
 							vstr name = symb(str, idx);
-							push(name, 0);
-							tok(IDENT, vlen(name) - 1, .val = { .s = name });
-							
+							tok(IDENT, vlen(name), .val = { .s = name });
+							vfree(name); vfree(sym);
 						}
 						continue;
 					case ELSE: {
+
+						// Have to hack a tiny bit to get the `else if` to work
 						u32 start = idx;
 						idx += 4;
 						SKIP;
 
 						// Allocs a string for the `if`
 						vstr maybeif = symb(str, idx);
-						push(maybeif, 0);
 						
 						// Takes care of `else if`s
-						if(vlen(maybeif) && !strcmp(maybeif, "if"))
+						if(strlen(maybeif) && !strcmp(maybeif, "if"))
 							push(t, { .loc = start - 4, .type = ELSEIF, .len = idx - start + 4 + 2 });
 						
 						// Or backtracks if there's no if
 						else push(t, { .loc = start - 4, .type = ELSE, .len = 4 });
+						// Tokenizer can expression and the rest of the if separately.
 						vfree(sym); vfree(maybeif);
 						continue;
 					}
 					default:
-						tok(*token, vlen(sym) - 1, .val = { .s = sym });
+						tok(*token, vlen(sym) /* Equivalent to strlen(sym) */,
+							.val = { .s = sym });
+						vfree(sym);
 						continue;
 				}
 			} else {
-				tok(IDENT, vlen(sym) - 1, .val = { .s = sym });
+				tok(IDENT, vlen(sym), .val = { .s = sym });
+				vfree(sym);
 				continue;
 			}
 		}
@@ -183,7 +216,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 		
 	error:
 		// We need to erase the whole line as if it didn't exist
-		while(t[vlen(t)].type != EOS) pop(t);
+		while(vlen(t) && t[vlen(t) - 1].type != EOS) pop(t);
 		while(str[idx] && str[idx] != '\n') idx++;
 		continue;
 	}
@@ -196,7 +229,7 @@ static inline void parse(struct Tokens* toks, char* str) {
 static inline vstr symb(char* str, u32 idx) {
 	vstr s = vnew();
 	while(isalnum(str[idx]) || str[idx] == '_') push(s, str[(idx)++]);
-	return s;
+	return vtostr(s);
 }
 
 static inline bool skip(char* s, u32* idx) {
@@ -217,13 +250,15 @@ static inline i32 expect(char* s, u32 idx, char* e) {
 	while(s[idx] == ' ' || s[idx] == '\n') idx++;
 
 	// Since strlen takes C string, we need to put a 0 at the end of the string we need to compare to cut it off :(
-	u32 len = strlen(e);
-	char tmp = s[len];
-	s[len] = 0;
-	if(strcmp(s, e)) return -1;
-	s[len] = tmp;
+	vstr tmp = strtov(e);
+	for(int i = 0; s[i + idx] != 0 && i < vlen(tmp); i ++) if(s[i + idx] != tmp[i]) goto error;
 
+	vfree(tmp);
 	return idx;
+
+error:
+	vfree(tmp);
+	return -1;
 }
 
 
