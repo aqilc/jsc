@@ -33,9 +33,8 @@ struct vecdata_ {
 // Add values to the beginning of the vec
 #define unshift(x, ...) (*(typeof(x))unshift_((void**)&(x), sizeof(*(x))) = (typeof(*x)) __VA_ARGS__)
 
-// Simplifies vclear calls
+// Simplifies vclear and vtostr calls
 #define vclear(v) vclear_((void**)&(v))
-// Simplifies vtostr calls
 #define vtostr(v) vtostr_((void**)&(v))
 
 // Pops off the last element and returns it

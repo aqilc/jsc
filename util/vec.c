@@ -38,7 +38,7 @@ char* strtov(char* s) {
 }
 
 char* vtostr_(void** v) {
-	*(char*)push_(v, 1) = 0;
+	(*(char*)push_(v, 1)) = 0;
 	_DATA(*v)->used --;
 	return *v;
 }
@@ -72,7 +72,8 @@ void* push_(void** v, uint32_t size) {
 // Allocates memory for a string and then pushes
 void pushs_(void** v, char* str) {
 	uint32_t len = strlen(str);
-	memcpy(push_(v, len), str, len);
+	memcpy(push_(v, len + 1), str, len + 1);
+	_DATA(*v)->used --;
 }
 
 // Gets length of formatted string to allocate from vector first, and then basically writes to the ptr returned by push
