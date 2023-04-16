@@ -1,14 +1,20 @@
-UTIL := vec.o hash.o hashfunc.o errors.o
+UTIL := vec.o hash.o hashfunc.o
 TESTSUITE := tests.h tests_end.h
 CC := gcc
 CFLAGS := 
 TFLAGS := 
 CLINK :=
 
-ifeq (${SAN},1)
+ifeq (${ASAN},1)
 	CFLAGS += -fsanitize=address
-	TFLAGS += -fsanitize=address
+	TFLAGS += -fsanitize=address -DSTOP_CATCHING_SIGNALS
 	CLINK += -fsanitize=address
+endif
+
+ifeq (${UBSAN},1)
+	CFLAGS += -fsanitize=undefined
+	TFLAGS += -fsanitize=undefined -DSTOP_CATCHING_SIGNALS
+	CLINK += -fsanitize=undefined
 endif
 
 ifeq (${OPT}, 1)
@@ -37,18 +43,21 @@ clean:
 	rm *.o
 	rm *.bin
 
-tok: toktest.bin
+tok: isclean toktest.bin
 	@./toktest.bin
-vec: vectest.bin
+vec: isclean vectest.bin
 	@./vectest.bin
-hash: hashtest.bin
+hash: isclean hashtest.bin
 	@./hashtest.bin
-code: codetest.bin
+code: isclean codetest.bin
 	@./codetest.bin
 
 .PHONY: tok vec clean
 
 
+# Makes sure the dir doesn't have .os from the other os (for personal use with wsl)
+isclean:
+	@if [ -f "*.exe" ]; then make -f Makefile.unix clean; fi;
 
 # ============== Test bins ==============
 vectest.bin: vectest.o vec.o $(UTIL)
@@ -84,4 +93,3 @@ tok.o: ../../tok.c
 	$(CC) $(CFLAGS) -c ../../tok.c -o tok.o
 errors.o: ../../errors.c
 	$(CC) $(CFLAGS) -c ../../errors.c -o errors.o
-
