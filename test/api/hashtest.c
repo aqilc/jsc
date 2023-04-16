@@ -2,17 +2,17 @@
 #include "../../util/hash.h"
 #include "macrohelp.h"
 #include <stdlib.h>
-#include <malloc.h>
 
 // size_t _msize(void*);
 
 #define MAX_STRING_LENGTH 10
-char arr[300000][MAX_STRING_LENGTH+1];
+#define STRINGS 500000
+char arr[STRINGS][MAX_STRING_LENGTH+1];
 INIT() {
     int i, j;
     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     srand(0x10930930);
-    for (i = 0; i < 30000; i++) {
+    for (i = 0; i < STRINGS; i++) {
         for (j = 0; j < MAX_STRING_LENGTH; j++) {
             int index = rand() % strlen(charset);
             arr[i][j] = charset[index];
@@ -37,9 +37,9 @@ TEST("Integer Keys")
   ht(int, int) h = {0};
 
   substart("First Set + Get");
-  hset(h, {1}) = 2;
+  hsetst(h, {1}) = 2;
   assert(1);
-  subend(*hget(h, {1}) == 2);
+  subend(*hgetst(h, {1}) == 2);
   hfree(h);
 TEND()
 
@@ -51,11 +51,31 @@ TEST("String keys")
   assert(1);
   subend(*hgets(h, "hello") == 1);
 
-  substart("Autoresize + benchmark");
-  for (int i = 0; i < 300000; i++)
+  substart("Autoresize + inserting benchmark: " STR(STRINGS) " strings");
+  for (int i = 0; i < STRINGS; i++)
     hsets(h, arr[i]) = i;
-  assert(1);
   subend(1);
+  substart("Get benchmark: " STR(STRINGS) " strings");
+  for (int i = 0; i < STRINGS; i++)
+    asserteq(*hgets(h, arr[i]), i);
+  subend(1);
+  hfree(h);
+TEND()
+
+TEST("Struct keys")
+  struct Test {
+    int a, b;
+  };
+
+  ht(struct Test, int) h = {0};
+
+  substart("First Set + Get");
+  struct Test t = {1, 2};
+  hset(h, t) = 3;
+  hsetst(h, { .a = 4, .b = 5 }) = 6;
+  assert(1);
+  asserteq(*hgetst(h, { .a = 4, .b = 5 }), 6);
+  subend(*hget(h, t) == 3);
   hfree(h);
 TEND()
 
