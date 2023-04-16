@@ -32,12 +32,27 @@ REFERENCES:
 */
 
 
+// References to global variable IDs
+ht(char*, int) cdg_gvars;
 
 char* codegen(struct Tokens* t) {
 	
 	cdg_init();
 
+	switch (t->toks[0].type) {
+		default: break;
+	}
+
+
 	cdg_exit();
 	
 	return cdg_prog();
+}
+
+
+
+// Parses an expression using the shunting yard algorithm
+void expr(struct Tokens* t) {
+
+
 }
