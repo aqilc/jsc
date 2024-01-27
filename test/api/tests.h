@@ -2,6 +2,7 @@
  * SINGLE FILE TEST SUITE HEADER MACRO LIB
  * **LIMITED TO 50 TESTS**
  https://stackoverflow.com/a/33206814/10013227
+ https://testanything.org/tap-version-14-specification.html#subtests
  🤬
  */
 
@@ -14,6 +15,7 @@ double totaltime;
 int subtests_run = 0;
 int subtests_passed = 0;
 int asserts = 0;
+_Bool assert_aborted = 0;
 int testoutputwidth = 70;
 
 
@@ -61,7 +63,7 @@ void init(void) __attribute__((weak));
 // #include <profileapi.h>
 #include <windows.h>
 
-double get_time() {
+static inline double get_precise_time() {
 	LARGE_INTEGER t, f;
 	QueryPerformanceCounter(&t);
 	QueryPerformanceFrequency(&f);
@@ -71,7 +73,7 @@ double get_time() {
 #include <sys/time.h>
 #include <sys/resource.h>
 
-double get_time() {
+static inline double get_precise_time() {
 	struct timeval t;
 	struct timezone tzp;
 	gettimeofday(&t, &tzp);
@@ -107,9 +109,8 @@ size_t msizeof(const void *p) {
 #define SUBTESTINDENT "  "
 
 // Custom assert, requires something to be true to continue with the test.
-#define assert(x) do { if(x) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
-#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (int) (x), (int) (y)); subtests_run = 0; subtests_passed = 0; starttime = get_time(); return 1; } while (0)
-
+#define assert(x) do { if(x) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": Assertion '"#x"' failed. Aborting test.\n", __FILE__, __LINE__); subtests_run = 0; subtests_passed = 0; starttime = get_precise_time(); assert_aborted = 1; } while (0)
+#define asserteq(x, y) do { if((x) == (y)) { asserts ++; break; } if(subtests_run) printf(SUBTESTINDENT); printf("\n(%s:%d) "TERMREDBOLD"Fatal error"TERMRESET": '"#x"'(%d) != '"#y"'(%d) . Aborting test.\n", __FILE__, __LINE__, (int) (x), (int) (y)); subtests_run = 0; subtests_passed = 0; starttime = get_precise_time(); assert_aborted = 1; } while (0)
 
 
 #define SUBTESTPASSOUTPUT(x) {\
@@ -128,7 +129,7 @@ size_t msizeof(const void *p) {
 			printf("%.*s\b\b\b\b" TERMYELLOW "%dx " TERMGREENBOLD "\u2713 "TERMRESET TERMGREENBGBLACK" PASS "TERMRESET" "TERMBLUEBG" %04.0f %s "TERMRESET"",\
 			/*Length of the number in `assert`*/ asserts < 10 ? 1 : asserts < 100 ? 2 : asserts < 1000 ? 3 : asserts < 10000 ? 4 : asserts < 100000 ? 5 : asserts < 1000000 ? 6 : asserts < 10000000 ? 7 : asserts < 100000000 ? 8 : asserts < 1000000000 ? 9 : 10,\
 			"\b\b\b\b\b\b\b\b\b\b\b\b", asserts, ANUDSNEADHUNSEADHUNDE * tmul, timeunit);\
-		subtests_passed++; asserts = 0; starttime = get_time(); break;\
+		subtests_passed++; asserts = 0; starttime = get_precise_time(); break;\
 	}
 
 #define SUBTESTINIT(x) subtests_run++;\
@@ -136,42 +137,40 @@ size_t msizeof(const void *p) {
 
 // A sub test, which checks if something is going according to plan but if it's not, it can still continue
 #define subtest(x, y) do {\
-	double ANUDSNEADHUNSEADHUNDE = (get_time() - starttime);\
+	double ANUDSNEADHUNSEADHUNDE = (get_precise_time() - starttime);\
 	SUBTESTINIT(x);\
 	if(y) SUBTESTPASSOUTPUT(y)\
 	printf("\n"SUBTESTINDENT"(%s:%d) "TERMREDBOLD"Subtest '" x "' (#%d) failed."TERMRESET"\n", __FILE__, __LINE__, subtests_run);\
-	starttime = get_time(); asserts = 0;\
+	starttime = get_precise_time(); asserts = 0;\
 } while (0)
 
 // For subtests with multiple checks
-#define substart(x) do { SUBTESTINIT(x); starttime = get_time(); } while(0)
+#define substart(x) do { SUBTESTINIT(x); starttime = get_precise_time(); } while(0)
 #define subend(x) do {\
-	double ANUDSNEADHUNSEADHUNDE = (get_time() - starttime);\
+	double ANUDSNEADHUNSEADHUNDE = (get_precise_time() - starttime);\
 	if(x) SUBTESTPASSOUTPUT(x)\
 	printf("\n"SUBTESTINDENT"(%s:%d) "TERMREDBOLD"Subtest #%d failed."TERMRESET"\n", __FILE__, __LINE__, subtests_run);\
-	starttime = get_time(); asserts = 0;\
+	starttime = get_precise_time(); asserts = 0;\
 } while(0)
 
 
 // ---------------------------------------------------- Macro based testing framework starts here ----------------------------------------------------
-#define TESTINIT
-#define TESTCLEAN
 
 #define CONCAT(a, b) a##b
 #define TESTFUNCRET int
 #define TESTFUNCARGS (void)
 
-
-#define TEST_(name, N) \
-TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
-	asserts = 0;\
-	printf(TERMPINK "%d)" TERMRESET " " name " " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, (int) (TESTNAMELIMIT - sizeof(name " (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3), "");\
-	starttime = get_time();\
-	TESTINIT
 #define TEST(name) TEST_(name, __COUNTER__)
 
-#define TEND() TESTCLEAN\
-	double ANUDSNEADHUNSEADHUNDE = (get_time() - starttime); /* Measures the amount of clocks the test took*/\
+#define TEST_(name, N) \
+void CONCAT(test_internal_, N)(void);\
+int CONCAT(test_, N)(void) {\
+	asserts = 0;\
+	printf(TERMPINK "%d)" TERMRESET " " name " " TERMGRAY "(" __FILE__ ":" TOSTRING(__LINE__) ")" TERMRESET " %-*s", N + 1, (int) (TESTNAMELIMIT - sizeof(name " (" __FILE__ ":" TOSTRING(__LINE__) ")") + 1 - 3), "");\
+	starttime = get_precise_time();\
+	CONCAT(test_internal_, N)();\
+	if(assert_aborted == 1) return 1;\
+	double ANUDSNEADHUNSEADHUNDE = (get_precise_time() - starttime); /* Measures the amount of clocks the test took*/\
 	totaltime += ANUDSNEADHUNSEADHUNDE;\
 	double tmul = 1000.0;\
 	char* timeunit = "ms";\
@@ -190,7 +189,8 @@ TESTFUNCRET CONCAT(test_, N)TESTFUNCARGS {\
 		if(!allpassed) return 1;\
 	}\
 	return 0;\
-}
+}\
+void CONCAT(test_internal_, N)(void)
 
 
 #define TESTFUNGEN__(N) TESTFUNC##N

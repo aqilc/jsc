@@ -20,11 +20,12 @@ ht(char*, enum TokenType) keywords;
 
 // Defines every keyword
 struct { char* s; enum TokenType t; } keyword_defs[] = {
-	"let",    DECL,
-	"fn",     DECL,
-	"struct", DECL,
-	"if",     IF,
-	"else",   ELSE
+	"let",    TTDECL,
+	"fn",     TTDECL,
+	"struct", TTDECL,
+	"if",     TTKEYWORD,
+	"else",   TTKEYWORD,
+	"return", TTKEYWORD
 };
 
 
@@ -41,8 +42,8 @@ struct Tokens* tokenize(char* str) {
 	struct Tokens* toks = malloc(sizeof(struct Tokens));
 	toks->toks = vnew();
 
-	// Initializes the hash tables, kinda dangerous but it should always work
-	memset(&toks->vars, 0, sizeof(toks->vars) * 3);
+	// Initializes the hash tables (with all 0s), kinda dangerous but it should always work
+	// memset(&toks->vars, 0, sizeof(toks->vars) * 3);
 
 	parse(toks, str);
 	return toks;
@@ -53,9 +54,9 @@ struct Tokens* tokenize(char* str) {
 void retokenize(struct Tokens* toks, char* str) {
 	vclear(toks->toks);
 
-	hreset(toks->vars);
-	hreset(toks->funcs);
-	hreset(toks->structs);
+	// hreset(toks->vars);
+	// hreset(toks->funcs);
+	// hreset(toks->structs);
 	
 	if(*str)
 		parse(toks, str);
@@ -64,9 +65,9 @@ void retokenize(struct Tokens* toks, char* str) {
 // Frees tokenizer output
 void tokfree(struct Tokens* t) {
 	vfree(t->toks);
-	hfree(t->vars);
-	hfree(t->funcs);
-	hfree(t->structs);
+	// hfree(t->vars);
+	// hfree(t->funcs);
+	// hfree(t->structs);
 	free(t);
 }
 
@@ -104,22 +105,22 @@ static inline void parse(struct Tokens* toks, char* str) {
 				num = atoi(numstr);
 			} else num = str[idx] - '0';
 
-			tok(NUM, len, .val = num);
+			tok(TTNUM, len, .val = num);
 			continue;
 		}
 
 		// Operators
 		switch(str[idx]) {
 			case '=':
-				if(t[vlen(t) - 1].type == OP && t[vlen(t) - 1].val.op < SET)
-					t[vlen(t) - 1].val.op += SET + 1, t[vlen(t) - 1].len ++, idx ++;
-				else tok(OP, 1, .val = { .op = SET });
+				if(t[vlen(t) - 1].type == TTOP && t[vlen(t) - 1].val.op < OPSET)
+					t[vlen(t) - 1].val.op += OPSET + 1, t[vlen(t) - 1].len ++, idx ++;
+				else tok(TTOP, 1, .val = { .op = OPSET });
 				continue;
-			case '+': tok(OP, 1, .val = { .op = ADD }); continue;
-			case '-': tok(OP, 1, .val = { .op = SUB }); continue;
-			case '*': tok(OP, 1, .val = { .op = MUL }); continue;
-			case '/': tok(OP, 1, .val = { .op = DIV }); continue;
-			case '%': tok(OP, 1, .val = { .op = MOD }); continue;
+			case '+': tok(TTOP, 1, .val = { .op = OPADD }); continue;
+			case '-': tok(TTOP, 1, .val = { .op = OPSUB }); continue;
+			case '*': tok(TTOP, 1, .val = { .op = OPMUL }); continue;
+			case '/': tok(TTOP, 1, .val = { .op = OPDIV }); continue;
+			case '%': tok(TTOP, 1, .val = { .op = OPMOD }); continue;
 		}
 
 		if(isalpha(str[idx])) {

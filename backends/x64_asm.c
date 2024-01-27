@@ -12,7 +12,10 @@ void export(init)() {
 	prog  = strtov(
 "global _start\n"
 "section .text\n"
-"_start:\n");
+"_start:\n"
+"push rbp\n"
+"mov rbp, rsp\n"
+"sub rsp, 0x1000\n"); // stack size :o but need to keep it 16 byte aligned owo
 }
 
 void export(exit)() {

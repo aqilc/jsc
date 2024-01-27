@@ -5,17 +5,15 @@
 
 enum TokenType {
 	// ERROR,
-	NUM,
-	STRING,
-	OP, // See enum below
-	ARG, // for functions, maybe generics
-	ARGB, ARGE, ARGSEP, // Start + end + separator of args
-	SCOPEB, SCOPEE, // Start + end of scopes
-	IDENT, // val = string
-	DECL, // See enum below
-	RETURN,
-	IF, ELSE, ELSEIF,
-	EOS, // END OF STATEMENT (0 = newline, 1 = semicolon)
+	TTNUM,
+	TTSTRING,
+	TTOP, // See enum below
+	TTARG, // for functions, maybe generics
+	TTPAREN,
+	TTIDENT, // val = string
+	TTKEYWORD,
+	TTDECL,
+	TTEOS, // END OF STATEMENT (0 = newline, 1 = semicolon)
 };
 
 struct Token {
@@ -35,13 +33,13 @@ struct Token {
 		
 		enum {
 			// SPECIALLY SET, DO NOT CHANGE ORDER OF BASIC -> ASSIGNMENT VERSIONS OF NORMAL OPS
-			ADD, SUB, MUL, DIV, MOD, SET, // basic operations
-			ADDSET, SUBSET, MULSET, DIVSET, MODSET, // operations with assignment
-			SHIFTRIGHT, SHIFTLEFT, // bitshifts
-			XOR, AND, OR, // bitwise operations
-			POW, // power
-			INCR, DECR, // Increment and decrement
-			GREATER, LESS, EQ, GREATEQ, LESSEQ, NOTEQ, // Comparisons
+			OPADD, OPSUB, OPMUL, OPDIV, OPMOD, OPSET, // basic operations
+			OPADDSET, OPSUBSET, OPMULSET, OPDIVSET, OPMODSET, // operations with assignment
+			OPSHIFTRIGHT, OPSHIFTLEFT, // bitshifts
+			OPXOR, OPAND, OPOR, // bitwise operations
+			OPPOW, // power
+			OPINCR, OPDECR, // Increment and decrement
+			OPGREATER, OPLESS, OPEQ, OPGREATEQ, OPLESSEQ, OPNOTEQ, // Comparisons
 		} op;
 		
 		char* s; // For parsed strings
@@ -50,10 +48,6 @@ struct Token {
 
 struct Tokens {
 	struct Token* toks;
-	
-	ht(char*, bool) vars;
-	ht(char*, bool) funcs;
-	ht(char*, bool) structs;
 };
 
 struct Tokens* tokenize(char* str);

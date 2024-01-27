@@ -4,11 +4,11 @@
 
 struct big { uint64_t i,j,k,l,m,n,o,p,q,r,s,t,w,x,y,z,a,b,c,d,e,f,g,h; };
 
-TEST("Vector free")
+TEST("Vector free") {
 	vfree(vnew());// just watch out for doublefree/segfault
-TEND()
+}
 
-TEST("Vector Conversions")
+TEST("Vector Conversions") {
 	char* hi = strtov("hi");
 	asserteq(vlen(hi), 2);
 	hi = vtostr(hi);
@@ -16,10 +16,10 @@ TEST("Vector Conversions")
 	asserteq(hi[2], 0);
 	asserteq(strlen(hi), 2);
 	vfree(hi);
-TEND()
+}
 
 
-TEST("Vector `push`")
+TEST("Vector `push`") {
 
 	substart("Push single char");
 		char* v = vnew();
@@ -34,23 +34,26 @@ TEST("Vector `push`")
 	subtest("Push big struct", w[0].a == 5);
 	vfree(w);
 
-	substart("Push strings");
+	substart("Push small string");
 	
 		// Smol string test
 		char* s = vnew();
 		pushs(s, "smolstring");
 		assert(vlen(s) == 10);
-
-		// Big string test just to make sure
-		#define BIGBUFLEN 200000
-		char* bigbuf = malloc(BIGBUFLEN);
-		memset(bigbuf, 's', BIGBUFLEN - 1);
-		bigbuf[BIGBUFLEN - 1] = 0;
+	subend(1);
+	
+	
+	// Big string test just to make sure
+	#define BIGBUFLEN 200000
+	char* bigbuf = malloc(BIGBUFLEN);
+	memset(bigbuf, 's', BIGBUFLEN - 1);
+	bigbuf[BIGBUFLEN - 1] = 0;
+	substart("Push big string");
 		pushs(s, bigbuf);
-		free(bigbuf);
 		assert(s[BIGBUFLEN - 230]);
 		assert(vlen(s) == BIGBUFLEN + 10 - 1);
 	subend(1);
+	free(bigbuf);
 	vfree(s);
 
 	char* s2 = vnew();
@@ -82,13 +85,13 @@ TEST("Vector `push`")
 		
 	subend(1);
 	vfree(n3);
-TEND()
+}
 
 struct random {
 	struct big* hi;
 };
 
-TEST("Vector clear")
+TEST("Vector clear") {
 	struct big* v = vnew();
 	push(v, {});
 	push(v, {});
@@ -138,7 +141,7 @@ TEST("Vector clear")
 	subtest("Subfield: Push + Clear again", vlen(hi->hi) == 0);
 	vfree(hi->hi);
 	free(hi);
-TEND();
+};
 
 
 

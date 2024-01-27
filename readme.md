@@ -23,17 +23,24 @@ The current name is temporary; these are a few other names I thought of: Luca, M
 
 - Language Syntax:
 	- Only postfix, binary, and tertiary ops (F for unary, no +val or \&val)
-		- It's to fix things like `a ++++++ b` (`(a ++) + (++ b)`, is also hard to parse), still leaves `a +++ b` (`(a ++) + b`) possible but oh well
+		- It's to fix things like `a ++++++ b` (`(a ++) + (++ b)`, is also hard to parse), still leaves `a +++ b` (`(a ++) + b`) possible but oh well.. and easier to parse either way
 	- `{}` can be exchanged for ` -> expr`
 		- If the block takes a return statement, like inside of a function (for things like `if`s) or in a function definition(`fn fname() => 3`), it is used as the return.
 	- `;`s are optional when making a single statement in a line.
 
+- Some Ideas I have about the lanugage:
+  - Objects and structs are synonymous
+    - Thus, structs aren't structs like they are in C, but actually dictionaries. I'll probably add a method to convert it to a buffer with the proper ordering and structure for C structs.
+  - I don't get why structs and tuples are differentiated so much in other languages, even though they're very similar(Tuples just have number keys). I'm just going to add special syntax for structs to behave like tuples in other langs, thinking of `obj<type1, type2, type3>` instead of `obj<a: type1>` and accessing it will be like in rust, `obj.0` or `obj[0]`
+  - Unlike in JS, arrays won't have a dictionary attacted to them and will be properly differentiated.
+    - Array types can only be declared as `type[]` despite requiring objects to be `obj<key: type>`
+
 ## Stage 1 of JSC
 
 ```rust
-let a = 1u16 // ; optional
-let b = 1000u8; // Compile time error: 1000 > u8 max
-let c = 2.0e10u8; // yes
+let a = u16(1) // ; optional
+let b = u8(1000); // Compile time error: 1000 > u8 max
+let c = u32(2.0e10); // yes
 let d = 'c'u16 // u16, but converted from char so treated the same lol
 let e = 'abcd' // Combines the utf8 values together into a number and puts it in to an int type for now. Complains if it's too big
 let f = "hi" // All strings allocated on the stack

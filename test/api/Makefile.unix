@@ -25,16 +25,6 @@ else
 	TFLAGS += -g
 endif
 
-# if ($(OS),Windows_NT)
-# 	define _del
-# 		del $(1)
-# 	endef
-# else
-# 	define _del
-# 		rm $(1)
-# 	endef
-# endif
-
 
 
 all: vec hash tok code

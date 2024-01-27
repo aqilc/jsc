@@ -1,10 +1,14 @@
 #include "codegen.h"
 #include "string.h"
 
+#undef ITEMNAMEMANGLER
+#define ITEMNAMEMANGLER cdg
+
 /*
 https://sonictk.github.io/asm_tutorial/
 https://stackoverflow.com/questions/36529449/why-are-rbp-and-rsp-called-general-purpose-registers
 https://stackoverflow.com/questions/892928/why-are-x86-registers-named-the-way-they-are
+Floating Point Instructions: https://docs.oracle.com/cd/E18752_01/html/817-5477/eoizy.html
 
 god dang it why is assembly like this: https://c.compiler-explorer.com/z/K9aon84rE
 
@@ -31,17 +35,23 @@ REFERENCES:
 	* https://social.msdn.microsoft.com/Forums/vstudio/en-US/71a80e19-4e6a-41fe-b1db-26e331da474d/linking-errors-lnk2001-unresolved-external-symbol-when-compiled-by-nasm?forum=vclanguage
 */
 
+typedef ht(char*, int) hvars;
+int var(char* name, hvars vars);
 
 // References to global variable IDs
 ht(char*, int) cdg_gvars;
 
 char* codegen(struct Tokens* t) {
-	
 	cdg_init();
 
-	switch (t->toks[0].type) {
-		default: break;
-	}
+
+	for(int i = 0; i < vlen(t->toks); i++)
+		switch (t->toks[i].type) {
+			case DECL:
+				// if(!hgets(cdg_gvars, t->toks[i].val.s))
+				// 	var(t->toks[i].val.s, cdg_var()); break;
+			default: break;
+		}
 
 
 	cdg_exit();
@@ -49,10 +59,24 @@ char* codegen(struct Tokens* t) {
 	return cdg_prog();
 }
 
-
+int var(char* name, hvars vars) {
+	int* id = hget(vars, name);
+	if(id == NULL) {
+		hsets(vars, name);
+		return vars.n - 1;
+	}
+	return *id;
+}
 
 // Parses an expression using the shunting yard algorithm
 void expr(struct Tokens* t) {
 
 
+}
+
+// Interprets a raw c number into a struct num
+struct num parse_num(struct Token t) {
+	struct num n;
+	
+	return n;
 }

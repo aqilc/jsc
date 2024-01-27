@@ -16,8 +16,10 @@ ifeq ($(MSVC), 1)
 else
 	# GCC
 	CC := gcc
-	CFLAGS := -g -Wall -Wextra -Wpedantic
-	TCFLAGS := -g
+	CFLAGS := -O3
+	# CFLAGS := -g -Wall -Wextra -Wpedantic
+	TCFLAGS := -O3
+	# TCFLAGS := -g
 	OBJEND := .o
 	OUTPUTFILENAME := -o 
 	EXENAME := -o 
